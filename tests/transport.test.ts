@@ -150,7 +150,9 @@ describe('failure reported inside a 200', () => {
     // in Pascal, so a check that only knew `success` would pass the failure straight through.
     const { client } = testClient({ body: { Success: false, Data: null, message: 'kampanya yok' } });
 
-    await expect(client.promotions.list()).rejects.toThrow(/kampanya yok/);
+    // `page` and `pagesize` are required by the promotion spec. The values are immaterial here —
+    // the stub answers regardless — and the spec documents no page base, so nothing is implied.
+    await expect(client.promotions.list({ page: 1, pagesize: 50 })).rejects.toThrow(/kampanya yok/);
   });
 
   it('raises when shipping sends error: true, whose flag is inverted', async () => {
