@@ -76,19 +76,31 @@ export function pageQuery(descriptor: PaginationDescriptor, index: number, size:
   return { [request.offsetParam]: index * size, [request.limitParam]: size };
 }
 
+/**
+ * Follow a descriptor key into a body.
+ *
+ * Keys are usually a single property name, but `diskonto-external` nests its rows a level down —
+ * `Data.Items` — so a dotted path is resolved rather than looked up whole.
+ */
+function at(body: unknown, path: string): unknown {
+  return path.split('.').reduce<unknown>((node, key) => {
+    if (!node || typeof node !== 'object') return undefined;
+    return (node as Record<string, unknown>)[key];
+  }, body);
+}
+
 /** Pull the rows and totals out of a response, whichever envelope it uses. */
 export function readPage<T>(descriptor: PaginationDescriptor, body: unknown, index: number): Page<T> {
-  const record = (body ?? {}) as Record<string, unknown>;
   const { items, total, pageCount } = descriptor.response;
 
   // A few endpoints answer with a bare array rather than an envelope — `/packages` unfiltered is
   // the documented example. Treat that as a single complete page rather than as an empty one.
-  const rows = Array.isArray(body) ? (body as T[]) : ((record[items] as T[] | undefined) ?? []);
+  const rows = Array.isArray(body) ? (body as T[]) : ((at(body, items) as T[] | undefined) ?? []);
 
   return {
     items: rows,
-    total: total !== undefined ? asNumber(record[total]) : undefined,
-    pageCount: pageCount !== undefined ? asNumber(record[pageCount]) : undefined,
+    total: total !== undefined ? asNumber(at(body, total)) : undefined,
+    pageCount: pageCount !== undefined ? asNumber(at(body, pageCount)) : undefined,
     index,
     raw: body,
   };

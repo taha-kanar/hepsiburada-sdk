@@ -66,6 +66,7 @@ export {
   assertEnvelopeSuccess,
   createApiError,
   errorContext,
+  flattenMessages,
   parseErrorPayload,
   type HepsiburadaErrorContext,
   type HepsiburadaErrorPayload,

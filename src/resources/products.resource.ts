@@ -52,7 +52,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/products/import',
       query: { version: VERSION },
       body: toFormData({ file: asJsonFile(document, 'integrator.json') }),
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -70,7 +69,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/products/status/{trackingId}',
       pathParams: { trackingId },
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -86,7 +84,6 @@ export class ProductsResource extends BaseResource {
       method: 'GET',
       path: '/api/products/trackingId-history',
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -102,7 +99,6 @@ export class ProductsResource extends BaseResource {
       method: 'POST',
       path: '/api/products/fastlisting',
       body,
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -119,7 +115,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/products/check-product-status',
       query: { version: VERSION },
       body,
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -137,7 +132,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/products/all-products-of-merchant/{merchantId}',
       pathParams: { merchantId },
       query: { ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -154,7 +148,6 @@ export class ProductsResource extends BaseResource {
       method: 'GET',
       path: '/api/products/products-by-merchant-and-status',
       query: { merchantId: this.merchantId, version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -170,7 +163,6 @@ export class ProductsResource extends BaseResource {
       method: 'POST',
       path: '/api/products/approve-prematch',
       body,
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -186,7 +178,6 @@ export class ProductsResource extends BaseResource {
       method: 'POST',
       path: '/api/products/reject-prematch',
       body,
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -202,7 +193,6 @@ export class ProductsResource extends BaseResource {
       method: 'POST',
       path: '/api/products/delete-process',
       body,
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -218,7 +208,6 @@ export class ProductsResource extends BaseResource {
       method: 'GET',
       path: '/api/products/delete-process/{trackingId}',
       pathParams: { trackingId },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -234,7 +223,6 @@ export class ProductsResource extends BaseResource {
       method: 'GET',
       path: '/api/categories/get-all-categories',
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -252,7 +240,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/categories/{categoryId}/attributes',
       pathParams: { categoryId },
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -271,7 +258,6 @@ export class ProductsResource extends BaseResource {
       path: '/api/categories/{categoryId}/attribute/{attributeId}/values',
       pathParams: { categoryId, attributeId },
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }

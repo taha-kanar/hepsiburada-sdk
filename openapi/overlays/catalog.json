@@ -1,0 +1,35 @@
+{
+  "x-overlay-note": [
+    "Corrections to openapi/catalog.json, applied by tools/generate.mjs as an RFC 7386 merge patch.",
+    "",
+    "Two fields that every category in the live response carries and the document does not mention.",
+    "`available` matters: it is also an accepted query parameter on get-all-categories, so the",
+    "filter is documented while the field it filters on is not."
+  ],
+  "components": {
+    "schemas": {
+      "BaseCategoryDTO": {
+        "x-observed": "2026-08-25",
+        "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+        "x-observed-note": "Both fields present on every category returned by GET /api/categories/get-all-categories.",
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "description": "Whether the category currently accepts new products. Undocumented; also accepted as a query filter on this operation.",
+            "x-observed": "2026-08-25",
+            "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+          },
+          "productTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Product-type names valid in this category. Undocumented.",
+            "x-observed": "2026-08-25",
+            "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+          }
+        }
+      }
+    }
+  }
+}

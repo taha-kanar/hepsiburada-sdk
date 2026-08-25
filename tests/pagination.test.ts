@@ -185,3 +185,43 @@ describe('the generated descriptor table', () => {
     }
   });
 });
+
+describe('rows nested below the envelope', () => {
+  // `diskonto-external` answers `{Success, Data:{TotalCount, Items}}` — PascalCase, and one level
+  // deeper than every other product. The published schema says `data.items` in camelCase, so a
+  // paginator built from the document alone reads undefined, sees no rows, and reports that the
+  // merchant has no campaigns. Nothing errors. That is the failure this dotted path prevents.
+  const promotion = PAGINATION['promotion.getSelfCampaignDiscounts'];
+
+  it('is what the generator derived for promotions', () => {
+    expect(promotion?.response.items).toBe('Data.Items');
+    expect(promotion?.response.total).toBe('Data.TotalCount');
+  });
+
+  it('reads rows through the dotted path', () => {
+    const page = readPage(promotion!, { Success: true, Data: { TotalCount: 2, Items: [{ CampaignId: 1 }, { CampaignId: 2 }] } }, 0);
+
+    expect(page.items).toHaveLength(2);
+    expect(page.total).toBe(2);
+  });
+
+  it('yields an empty page rather than throwing when the envelope is absent', () => {
+    expect(readPage(promotion!, { Success: true, Data: null }, 0).items).toEqual([]);
+    expect(readPage(promotion!, {}, 0).items).toEqual([]);
+  });
+
+  it('still reads a flat envelope for every other product', () => {
+    const orders = PAGINATION['order.getOrders'];
+
+    expect(orders?.response.items).toBe('items');
+    expect(readPage(orders!, { items: [1, 2, 3], totalCount: 3 }, 0).items).toEqual([1, 2, 3]);
+  });
+
+  it('carries the totals that finance and questions spell their own way', () => {
+    // Neither `count` nor `totalItemCount` was in the generator's key list, so both descriptors
+    // silently shipped without a total.
+    expect(PAGINATION['finance.getTransactions']?.response.total).toBe('count');
+    expect(PAGINATION['question.getIssues']?.response.total).toBe('totalItemCount');
+    expect(PAGINATION['question.getIssues']?.response.pageCount).toBe('totalPageCount');
+  });
+});

@@ -1,4 +1,5 @@
 import { BaseResource, type RequestOptions } from '../core/resource/base-resource.js';
+import type { OperationRequest } from '../core/transport.js';
 import { toFormData } from '../core/http/form-data.js';
 import type { question } from '../generated/index.js';
 
@@ -11,6 +12,22 @@ const MODULE = 'question';
  * 0, so a shared "page 0" default silently asks this one for a page that does not exist.
  */
 export class QuestionsResource extends BaseResource {
+  /**
+   * Send the merchant id as a **header**, on every operation.
+   *
+   * `api-asktoseller-merchant` is the only product that takes it this way — the other eleven put
+   * it in the path — and all six of its operations declare the header `required`. Omitting it is
+   * answered with a bare `401`, which reads as a credential problem and is not one; production
+   * refused every request from this SDK until the header was added. Caller-supplied headers still
+   * win, so a multi-merchant caller can override it per call.
+   */
+  protected override options(
+    options: RequestOptions = {}
+  ): Partial<Pick<OperationRequest, 'signal' | 'headers' | 'meta'>> {
+    const forwarded = super.options(options);
+    return { ...forwarded, headers: { merchantId: this.merchantId, ...forwarded.headers } };
+  }
+
   /** Questions addressed to this merchant. */
   list(query: question.GetIssuesQuery = {}, options: RequestOptions = {}): Promise<question.GetIssuesResponse> {
     return this.transport.request<question.GetIssuesResponse>({

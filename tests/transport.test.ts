@@ -129,11 +129,11 @@ describe('failures', () => {
   });
 });
 
-describe('the catalog envelope', () => {
-  // mpop wraps everything in { success, code, data } and the schema permits a failure inside a
-  // 200. n11 shipped without this check and lost a day to rate-limit refusals decoding as empty
-  // pages, so it runs on the decoded body rather than on what the document promised.
-  it('raises when a 200 carries success: false', async () => {
+describe('failure reported inside a 200', () => {
+  // Three products answer 200 and put the verdict in the body, in three spellings. Only one of
+  // them documents it, so the check runs on every decoded body rather than where a resource opts
+  // in — an opt-in derived from the specs would have covered exactly one of these three.
+  it('raises when mpop sends success: false', async () => {
     const { client } = testClient({ body: { success: false, code: 400, message: 'Kategori bulunamadı' } });
 
     await expect(client.products.categories()).rejects.toThrow(/Kategori bulunamadı/);
@@ -145,17 +145,38 @@ describe('the catalog envelope', () => {
     await expect(client.products.categories()).rejects.toBeInstanceOf(HepsiburadaApiError);
   });
 
-  it('is silent when neither field is present', async () => {
+  it('raises when diskonto sends PascalCase Success: false', async () => {
+    // The published promotion schema declares this envelope in camelCase and production sends it
+    // in Pascal, so a check that only knew `success` would pass the failure straight through.
+    const { client } = testClient({ body: { Success: false, Data: null, message: 'kampanya yok' } });
+
+    await expect(client.promotions.list()).rejects.toThrow(/kampanya yok/);
+  });
+
+  it('raises when shipping sends error: true, whose flag is inverted', async () => {
+    const { client } = testClient({ body: { cargoFirms: [], error: true, msg: 'merchant not found' } });
+
+    await expect(client.shipping.cargoFirms()).rejects.toThrow(/merchant not found/);
+  });
+
+  it('is silent on a healthy body from any product', async () => {
+    const { client } = testClient({ body: { cargoFirms: [], error: false, msg: null } });
+
+    await expect(client.shipping.cargoFirms()).resolves.toEqual({ cargoFirms: [], error: false, msg: null });
+  });
+
+  it('is silent when no verdict field is present', async () => {
     const { client } = testClient({ body: { data: [] } });
 
     await expect(client.products.categories()).resolves.toEqual({ data: [] });
   });
 
-  it('is not applied to products that do not use the envelope', async () => {
-    // `code` means something else entirely on other hosts; only the catalog services get checked.
-    const { client } = testClient({ body: { code: 7 } });
+  it('does not read a non-numeric code as a failure', async () => {
+    // `Number('TRY') !== 0` is true. A currency code at the top of an undocumented response must
+    // not be mistaken for a status, which is the risk taken on by checking every body.
+    const { client } = testClient({ body: { code: 'TRY', amount: 12 } });
 
-    await expect(client.orders.list()).resolves.toEqual({ code: 7 });
+    await expect(client.orders.list()).resolves.toEqual({ code: 'TRY', amount: 12 });
   });
 });
 
@@ -234,5 +255,54 @@ describe('the escape hatch', () => {
     expect(result).toEqual({ ok: true });
     expect(http.last.headers['authorization']).toBeDefined();
     expect(http.last.headers['user-agent']).toBe('testintegrator_dev');
+  });
+});
+
+describe('the merchant id as a header', () => {
+  // `api-asktoseller-merchant` is the one product that takes the merchant id as a header instead
+  // of a path segment, and all six of its operations declare it required. Without it production
+  // answers a bare 401 — which reads as a credential problem, sends you to check the User-Agent,
+  // and is not a credential problem at all. Every operation on this resource must carry it.
+  it('is sent on a list call', async () => {
+    const { client, http } = testClient({ body: { data: [] } });
+
+    await client.questions.list();
+
+    expect(http.last.headers['merchantid']).toBe(MERCHANT_ID);
+  });
+
+  it('is sent on every other operation of the product', async () => {
+    const { client, http } = testClient({ body: {} });
+
+    await client.questions.count();
+    expect(http.last.headers['merchantid']).toBe(MERCHANT_ID);
+
+    await client.questions.get('12345');
+    expect(http.last.headers['merchantid']).toBe(MERCHANT_ID);
+  });
+
+  it('does not put it in the path, which this product has no placeholder for', async () => {
+    const { client, http } = testClient({ body: { data: [] } });
+
+    await client.questions.list();
+
+    expect(new URL(http.last.url).pathname).toBe('/api/v1.0/issues');
+  });
+
+  it('yields to a caller who overrides it, for a multi-merchant integrator', async () => {
+    const { client, http } = testClient({ body: { data: [] } });
+
+    await client.questions.list({}, { headers: { merchantId: 'someone-else' } });
+
+    expect(http.last.headers['merchantid']).toBe('someone-else');
+  });
+
+  it('is not sent by the eleven products that take it in the path', async () => {
+    const { client, http } = testClient({ body: { items: [] } });
+
+    await client.orders.list();
+
+    expect(http.last.headers['merchantid']).toBeUndefined();
+    expect(new URL(http.last.url).pathname).toContain(MERCHANT_ID);
   });
 });

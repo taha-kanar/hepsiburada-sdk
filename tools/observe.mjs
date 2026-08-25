@@ -38,6 +38,17 @@ const { HepsiburadaClient, HepsiburadaApiError, HepsiburadaError } = await impor
 const { findResponseSchema, findSchemaDrift, loadSpecDocuments } = await import(join(ROOT, 'dist/drift.js'));
 
 /**
+ * A recent 7-day window, for the endpoints that refuse an unfiltered query.
+ *
+ * `mpfinance-external` answers a bare `/transactions` with a 400 saying that one of OrderNumber,
+ * PackageNumber, ReferenceDocument or Sku must be given, or else a date-range pair — even though
+ * its own document marks every one of those parameters optional.
+ */
+const DAY = 86_400_000;
+const stamp = (at) => new Date(at).toISOString().slice(0, 19);
+const WINDOW = { start: stamp(Date.now() - 7 * DAY), end: stamp(Date.now()) };
+
+/**
  * The only operations this tool may call.
  *
  * Every one is a GET that lists or looks up. Nothing here creates, transitions, cancels or
@@ -58,10 +69,12 @@ const PROBES = [
     asks: 'listings, and whether this host accepts the same auth as OMS' },
   { module: 'catalog', operationId: 'getCategoriesGetAllCategories', path: '/api/categories/get-all-categories', query: { page: 0, size: 5, version: 1, leaf: true, status: 'ACTIVE', available: true },
     asks: 'whether mpop reports failure as 200 + success:false or as a 4xx' },
-  { module: 'finance', operationId: 'getTransactions', path: '/transactions/merchantid/{merchantId}', query: { Offset: 0, Limit: 5 },
-    asks: 'whether finance really capitalises both parameters' },
+  { module: 'finance', operationId: 'getTransactions', path: '/transactions/merchantid/{merchantId}',
+    query: { Offset: 0, Limit: 5, RecordDateStart: WINDOW.start, RecordDateEnd: WINDOW.end },
+    asks: 'whether finance really capitalises both parameters, and which date format it takes' },
   { module: 'question', operationId: 'getIssues', path: '/api/v1.0/issues', query: { page: 1, size: 5 },
-    asks: 'whether questions really count pages from one' },
+    headers: { merchantId: process.env.HB_MERCHANT_ID },
+    asks: 'whether questions really count pages from one — and it needs merchantId as a header' },
   { module: 'claim-list', operationId: 'getClaims', path: '/claims/merchantId/{merchantId}', query: { offset: 0, limit: 5 },
     asks: 'claims, on the one path that spells merchantId with a capital I' },
   { module: 'shipping', operationId: 'getCargoFirms', path: '/cargoFirms/{merchantId}', query: {},
@@ -110,7 +123,10 @@ function shapeOf(value, depth = 0) {
   if (Array.isArray(value)) {
     if (!value.length) return 'array(0)';
     if (depth > 4) return `array(${value.length})`;
-    return { _array: value.length, _of: shapeOf(value[0], depth + 1) };
+    // Merged across several elements, not read off the first. Optional fields are the norm in
+    // these payloads -- `Deliveries` is present on some claims and absent from others -- so a
+    // shape taken from element 0 alone reports a field as missing when it is merely optional.
+    return { _array: value.length, _of: value.slice(0, 5).reduce((into, item) => unite(into, shapeOf(item, depth + 1)), undefined) };
   }
   if (typeof value !== 'object') return typeof value;
   if (depth > 4) return 'object';
@@ -118,6 +134,38 @@ function shapeOf(value, depth = 0) {
   const shape = {};
   for (const [key, child] of Object.entries(value)) {
     shape[key] = SENSITIVE.test(key) ? `${typeof child} (redacted)` : shapeOf(child, depth + 1);
+  }
+  return shape;
+}
+
+/**
+ * Combine two observed shapes into one that describes both.
+ *
+ * Disagreeing scalars become `"null | string"`, which is how a nullable field announces itself;
+ * a key seen in only some elements is marked optional, because that is a different fact from a
+ * key that is always present and the overlay written from it should say so.
+ */
+function unite(left, right) {
+  if (left === undefined) return right;
+  if (right === undefined) return left;
+  // A nullable object or array: keep the structure and record that null was also seen, rather
+  // than collapsing the structure into the string "null".
+  if (left === 'null' && typeof right === 'object') return { ...right, _nullable: true };
+  if (right === 'null' && typeof left === 'object') return { ...left, _nullable: true };
+  if (typeof left === 'string' || typeof right === 'string') {
+    if (left === right) return left;
+    const parts = [...new Set([...String(left).split(' | '), ...String(right).split(' | ')])];
+    return parts.sort().join(' | ');
+  }
+  if (left._array !== undefined || right._array !== undefined) {
+    return { _array: Math.max(left._array ?? 0, right._array ?? 0), _of: unite(left._of, right._of) };
+  }
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+  const shape = {};
+  for (const key of keys) {
+    const seen = key in left && key in right;
+    const merged = unite(left[key], right[key]);
+    shape[key] = seen || typeof merged !== 'string' ? merged : `${merged} (optional)`;
   }
   return shape;
 }
@@ -157,7 +205,12 @@ const client = new HepsiburadaClient({
   timeoutMs: 30_000,
 });
 
-const documents = loadSpecDocuments(join(ROOT, 'openapi'));
+// Two views of the same documents. The published one is what the report records, because
+// verification.json is the evidence an overlay entry is written from -- fold the overlays in and
+// the trail disappears the moment it is used. The overlaid one answers the question that actually
+// matters on a re-run: how much of what production sends is still unrecorded.
+const published = loadSpecDocuments({ specsDir: join(ROOT, 'openapi'), overlays: false });
+const corrected = loadSpecDocuments({ specsDir: join(ROOT, 'openapi'), overlays: true });
 const selected = only ? PROBES.filter((probe) => probe.module === only) : PROBES;
 
 console.log(`observing ${selected.length} read-only endpoint(s) against ${environment}\n`);
@@ -182,17 +235,26 @@ for (const probe of selected) {
       path: probe.path,
       pathParams: { merchantId: client.config.merchantId },
       query: probe.query,
+      ...(probe.headers ? { headers: probe.headers } : {}),
     });
 
     entry.status = 200;
     entry.shape = shapeOf(body);
 
-    const located = findResponseSchema(documents[probe.module], 'GET', probe.path);
-    entry.drift = located
-      ? findSchemaDrift(documents[probe.module], located.schema, body, '', { schemaPath: located.schemaPath })
-      : [{ kind: 'no-schema', path: '', actual: 'the document describes no response for this operation' }];
+    const walk = (documents) => {
+      const located = findResponseSchema(documents[probe.module], 'GET', probe.path);
+      return located
+        ? findSchemaDrift(documents[probe.module], located.schema, body, '', { schemaPath: located.schemaPath })
+        : [{ kind: 'no-schema', path: '', actual: 'the document describes no response for this operation' }];
+    };
 
-    console.log(`200  ${entry.drift.length} drift finding(s)`);
+    entry.drift = walk(published);
+    entry.unrecorded = walk(corrected).length;
+
+    console.log(
+      `200  ${String(entry.drift.length).padStart(2)} vs published, ` +
+        `${entry.unrecorded} still unrecorded`
+    );
   } catch (error) {
     if (error instanceof HepsiburadaApiError) {
       entry.status = error.status;
@@ -212,9 +274,15 @@ for (const probe of selected) {
 }
 
 const statuses = Object.values(report.probes).map((entry) => entry.status);
+const unrecorded = Object.values(report.probes).reduce((sum, entry) => sum + (entry.unrecorded ?? 0), 0);
 console.log(
   `\n${statuses.filter((status) => status === 200).length}/${selected.length} answered 200` +
     (statuses.includes(401) ? '  — a 401 usually means the User-Agent is not an exact match' : '')
+);
+console.log(
+  unrecorded === 0
+    ? 'every difference from the published documents is already recorded in openapi/overlays/'
+    : `${unrecorded} finding(s) not yet in openapi/overlays/ — write them up before trusting the types`
 );
 
 if (write) {

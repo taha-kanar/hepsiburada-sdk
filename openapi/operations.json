@@ -418,7 +418,8 @@
         "firstPage": 0
       },
       "response": {
-        "items": "data"
+        "items": "Data.Items",
+        "total": "Data.TotalCount"
       }
     }
   },
@@ -849,7 +850,8 @@
         "limitParam": "Limit"
       },
       "response": {
-        "items": "items"
+        "items": "items",
+        "total": "count"
       }
     }
   },
@@ -887,7 +889,9 @@
         "firstPage": 1
       },
       "response": {
-        "items": "data"
+        "items": "data",
+        "total": "totalItemCount",
+        "pageCount": "totalPageCount"
       }
     }
   },

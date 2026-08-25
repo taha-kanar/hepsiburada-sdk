@@ -10,7 +10,11 @@
     "against them returned 400 WrongDateFormat. Only the base /orders/merchantid/{merchantId}",
     "endpoint actually honours the filter. This is worse than a missing feature, because the",
     "neighbouring endpoint that DOES accept a date accepts an ISO-8601 value it cannot match,",
-    "answering 200 with an empty page -- so a caller who guesses gets silence rather than an error."
+    "answering 200 with an empty page -- so a caller who guesses gets silence rather than an error.",
+    "",
+    "The two `deci` fields below came from the first live probe. Deci is the volumetric weight the",
+    "cargo company bills on, so `totalDeci` is what a shipping-cost reconciliation has to read, and",
+    "the document mentions neither."
   ],
   "paths": {
     "/orders/merchantid/{merchantId}": {
@@ -51,6 +55,34 @@
         "x-observed": "2026-06-05",
         "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
         "x-observed-note": "Declares begindate/enddate but answers 400 WrongDateFormat for every format tried."
+      }
+    }
+  },
+  "definitions": {
+    "model.PackageLine": {
+      "x-observed": "2026-08-25",
+      "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+      "x-observed-note": "Present on every line of every package in the live feed.",
+      "properties": {
+        "deci": {
+          "type": "number",
+          "description": "Volumetric weight of this line, in deci. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        }
+      }
+    },
+    "model.ExternalRawPackageRepresentation": {
+      "x-observed": "2026-08-25",
+      "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+      "x-observed-note": "Present on every package in the live feed.",
+      "properties": {
+        "totalDeci": {
+          "type": "number",
+          "description": "Volumetric weight of the whole package, in deci -- what the cargo company bills on. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        }
       }
     }
   }

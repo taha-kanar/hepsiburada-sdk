@@ -6,6 +6,10 @@
  * Corrections belong in openapi/overlays/, not here.
  */
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Eight undocumented properties, observed across the live claim feed.
+ */
 export interface Claim {
   claimDate?: string;
   claimType?: string;
@@ -32,6 +36,61 @@ export interface Claim {
   preApprovalReason?: string;
   preApprovalConfirmedBy?: string;
   preApprovalConfirmedDate?: string;
+  /**
+   * The order line this claim was raised against. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  lineItemId?: string;
+  /**
+   * When the merchant's window to act on this claim closes. Null while no action is pending. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  AwaitingActionExpireDate?: string;
+  /**
+   * The merchant's own SKU for the claimed item. Undocumented, and distinct from the documented `sku`.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  MerchantSku?: string;
+  /**
+   * The customer's stated reason for the claim. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  Reason?: string;
+  /**
+   * Observed only as null, on every claim in the live feed, so its type is deliberately left unknown rather than guessed. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  RequestedProduct?: unknown;
+  /**
+   * Evidence the customer attached. Null when none was. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  Reports?: {
+  ImageUrl?: string;
+  ReportedBy?: string;
+}[];
+  /**
+   * Return-shipment legs for this claim, absent on claims that have none. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  Deliveries?: {
+  DeliveryCode?: string;
+  Status?: string;
+  Direction?: string;
+  CreatedDate?: string;
+  PackageNumber?: string;
+  TrackingNumber?: string;
+  CargoCompany?: {
+  TypeCode?: string;
+  Alias?: string;
+  Name?: string;
+};
+}[];
+  /**
+   * Observed only as an empty array, so the element type is inferred rather than seen. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  tags?: string[];
 }
 
 export interface Money {

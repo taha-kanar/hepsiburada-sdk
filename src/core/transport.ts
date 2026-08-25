@@ -28,12 +28,6 @@ export interface OperationRequest {
   signal?: AbortSignal;
   /** Values forwarded to middleware through `request.context.meta`. */
   meta?: Record<string, unknown>;
-  /**
-   * Check the `{ success, code }` envelope on a 2xx response.
-   *
-   * Set by the generator for the catalog services, which are the only ones that use it.
-   */
-  envelope?: boolean;
 }
 
 /** Resolves a module name to the host it lives on. */
@@ -81,10 +75,12 @@ export class Transport {
     const { response, request } = await this.exchange(operation);
     const decoded = this.decode<TResponse>(operation, response);
 
-    // Runs on the decoded body, not on what the schema promised. n11 taught this the expensive
-    // way: gating an in-band check on the document declaring the field meant a rate-limit refusal
-    // arrived as a 200 and decoded as an empty page.
-    if (operation.envelope) assertEnvelopeSuccess(decoded, request, response);
+    // Runs on every decoded body, not on what the schema promised, and not where a resource opted
+    // in. n11 taught this the expensive way: gating an in-band check on the document declaring the
+    // field meant a rate-limit refusal arrived as a 200 and decoded as an empty page. Production
+    // then proved the point again here — two of the three products that answer 200 with a failure
+    // flag do not document the envelope at all, so no opt-in could have covered them.
+    assertEnvelopeSuccess(decoded, request, response);
 
     return decoded;
   }

@@ -41,9 +41,65 @@ export interface HepsiburadaErrorPayload {
   /** The catalog envelope's error code. `0` is success; anything else is not. */
   code?: number | string;
   message?: string;
-  /** Listing-style per-element errors, and the `{ errors: [...] }` shape generally. */
-  errors?: Array<{ message?: string; code?: string; elementNo?: number; errors?: string[] }>;
+  /**
+   * Whatever the service put under `errors`.
+   *
+   * Deliberately not narrowed to an array. The listing service sends
+   * `[{ message, code, elementNo, errors }]`, but `mpfinance-external` returns ASP.NET Core's
+   * ProblemDetails, where `errors` is a dictionary of field name to messages. Declaring the array
+   * and iterating it is what threw a TypeError out of the error path against production.
+   * Read it with {@link flattenMessages}, never by indexing.
+   */
+  errors?: unknown;
   [key: string]: unknown;
+}
+
+/**
+ * Every human-readable message inside an `errors` field, whatever shape it arrived in.
+ *
+ * Three teams wrote these services and they do not agree on what `errors` is:
+ *
+ * - `listing-external` sends an array of `{ message, code, elementNo, errors[] }`;
+ * - `mpfinance-external` sends ASP.NET Core ProblemDetails, where it is a *dictionary* of field
+ *   name to messages — iterating that as an array throws `errors is not iterable`;
+ * - some responses put a bare string there.
+ *
+ * So this accepts `unknown` and reads whichever it finds. A dictionary keeps its field names,
+ * because "begindate: The value is not valid" is a usable message and "The value is not valid"
+ * is not.
+ */
+export function flattenMessages(errors: unknown): string[] {
+  const out: string[] = [];
+
+  if (typeof errors === 'string') {
+    if (errors) out.push(errors);
+    return out;
+  }
+
+  if (Array.isArray(errors)) {
+    for (const entry of errors) {
+      if (typeof entry === 'string') {
+        if (entry) out.push(entry);
+        continue;
+      }
+      if (!entry || typeof entry !== 'object') continue;
+      const row = entry as { message?: unknown; errors?: unknown };
+      if (typeof row.message === 'string' && row.message) out.push(row.message);
+      for (const nested of flattenMessages(row.errors)) out.push(nested);
+    }
+    return out;
+  }
+
+  if (errors && typeof errors === 'object') {
+    for (const [field, messages] of Object.entries(errors as Record<string, unknown>)) {
+      // ASP.NET keys a model-level error with the empty string; prefixing that yields ": msg".
+      for (const message of flattenMessages(messages)) {
+        out.push(field.trim() ? `${field}: ${message}` : message);
+      }
+    }
+  }
+
+  return out;
 }
 
 /** Base class for everything this SDK throws. `instanceof HepsiburadaError` catches all of it. */
@@ -94,12 +150,11 @@ export class HepsiburadaApiError extends HepsiburadaError {
     const payload = this.context.payload;
     if (!payload) return [];
 
-    const out: string[] = [];
-    for (const entry of payload.errors ?? []) {
-      if (entry.message) out.push(entry.message);
-      for (const nested of entry.errors ?? []) out.push(nested);
-    }
+    const out = flattenMessages(payload.errors);
     if (!out.length && payload.message) out.push(payload.message);
+    // ProblemDetails carries `detail`/`title` and never `message`.
+    if (!out.length && typeof payload['detail'] === 'string') out.push(payload['detail']);
+    if (!out.length && typeof payload['title'] === 'string') out.push(payload['title']);
     return out;
   }
 }

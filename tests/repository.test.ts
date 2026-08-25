@@ -266,3 +266,118 @@ describe('the generated tree', () => {
     expect(changed).toEqual([]);
   });
 });
+
+describe('overlays reach the generated types', () => {
+  // The mechanism failed silently once: overlays were merged *after* the document was normalised
+  // into one internal shape, so `components.schemas`/`definitions` corrections patched a copy the
+  // generator no longer read. Every schema correction was counted in the summary line and then
+  // dropped. Nothing failed — the types were simply still wrong, which is the exact class of
+  // problem overlays exist to prevent. So the round trip is asserted, not assumed.
+  const directory = join(ROOT, 'openapi/overlays');
+  const overlays = readdirSync(directory).filter((file) => file.endsWith('.json'));
+
+  it.each(overlays)('%s: every property it adds appears in the generated module', (file) => {
+    const overlay = JSON.parse(readFileSync(join(directory, file), 'utf8')) as Record<string, unknown>;
+    const module = file.replace(/\.json$/, '');
+    const generated = readFileSync(join(ROOT, `src/generated/${module}.ts`), 'utf8');
+
+    const added: string[] = [];
+    const walk = (node: unknown, inProperties: boolean): void => {
+      if (!node || typeof node !== 'object' || Array.isArray(node)) return;
+      for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+        // A `null` value is a deletion, which by definition must NOT appear.
+        if (inProperties && value !== null) added.push(key);
+        walk(value, key === 'properties');
+      }
+    };
+    walk(overlay, false);
+
+    const missing = added.filter((name) => !new RegExp(`\\b${name}\\??:`).test(generated));
+    expect(missing, `${file} patches fields that never reached src/generated/${module}.ts`).toEqual([]);
+  });
+
+  it.each(overlays)('%s: every property it deletes is gone from the generated module', (file) => {
+    const overlay = JSON.parse(readFileSync(join(directory, file), 'utf8')) as Record<string, unknown>;
+    const module = file.replace(/\.json$/, '');
+    const generated = readFileSync(join(ROOT, `src/generated/${module}.ts`), 'utf8');
+
+    // Scoped to the interface the entry patches, not the whole file: `data` and `name` are
+    // ordinary property names that other schemas in the same product legitimately have. The
+    // generator PascalCases a schema name and drops the Swagger `model.` prefix, so `model.Claim`
+    // becomes `interface Claim`.
+    const schemas = {
+      ...((overlay['components'] as { schemas?: Record<string, unknown> })?.schemas ?? {}),
+      ...((overlay['definitions'] as Record<string, unknown>) ?? {}),
+    };
+
+    const survivors: string[] = [];
+    for (const [schemaName, schema] of Object.entries(schemas)) {
+      const properties = (schema as { properties?: Record<string, unknown> }).properties ?? {};
+      const deleted = Object.entries(properties).filter(([, value]) => value === null).map(([key]) => key);
+      if (!deleted.length) continue;
+
+      const typeName = schemaName.split('.').pop()!.replace(/^(.)/, (chr) => chr.toUpperCase());
+      const block = new RegExp(`export interface ${typeName} \\{([\\s\\S]*?)\\n\\}`).exec(generated);
+      expect(block, `${file} patches ${schemaName}, which generated no interface ${typeName}`).not.toBeNull();
+
+      for (const name of deleted) {
+        if (new RegExp(`^\\s+${name}\\??:`, 'm').test(block![1]!)) survivors.push(`${typeName}.${name}`);
+      }
+    }
+
+    expect(survivors, `${file} deletes fields that are still generated`).toEqual([]);
+  });
+});
+
+describe('the live verification report', () => {
+  const report = JSON.parse(readFileSync(join(ROOT, 'openapi/verification.json'), 'utf8')) as {
+    environment: string;
+    probes: Record<string, { status?: number; shape?: unknown; host?: string }>;
+  };
+
+  it('records production, not the sandbox', () => {
+    expect(report.environment).toBe('production');
+    for (const [label, probe] of Object.entries(report.probes)) {
+      expect(probe.host, `${label} was probed against a -sit host`).not.toMatch(/-sit\./);
+    }
+  });
+
+  it('carries shapes and never values', () => {
+    // The probe runs against a live seller with real orders. The report is committed, so the
+    // rule is structural: every leaf must be a type name, a count, or a redaction marker.
+    const leaves: string[] = [];
+    const walk = (node: unknown): void => {
+      if (typeof node === 'string') leaves.push(node);
+      else if (node && typeof node === 'object') for (const value of Object.values(node)) walk(value);
+    };
+    walk(Object.fromEntries(Object.entries(report.probes).map(([label, probe]) => [label, probe.shape])));
+
+    const legal = /^(string|number|boolean|object|array|null|undefined)( \(redacted\))?( \(optional\))?$|^array\(\d+\)$/;
+    const values = leaves.filter((leaf) => !leaf.split(' | ').every((part) => legal.test(part.trim())));
+    expect(values, 'verification.json contains something that is not a type name').toEqual([]);
+  });
+
+  it('answered every probe', () => {
+    for (const [label, probe] of Object.entries(report.probes)) {
+      expect(probe.status, `${label} did not answer 200`).toBe(200);
+    }
+  });
+});
+
+describe('nothing observed is left unrecorded', () => {
+  it('every difference the live pass found is in openapi/overlays/', () => {
+    // The report counts findings twice: against the documents as published, and against them with
+    // the overlays folded in. A non-zero second number means production sends something no
+    // overlay explains — so the generated types are, right now, describing a response that does
+    // not exist. Committing that state should fail the build, not wait to be noticed.
+    const report = JSON.parse(readFileSync(join(ROOT, 'openapi/verification.json'), 'utf8')) as {
+      probes: Record<string, { unrecorded?: number }>;
+    };
+
+    const open = Object.entries(report.probes)
+      .filter(([, probe]) => (probe.unrecorded ?? 0) > 0)
+      .map(([label, probe]) => `${label}: ${probe.unrecorded}`);
+
+    expect(open, 'run `npm run observe -- --write` and write the findings up as overlays').toEqual([]);
+  });
+});

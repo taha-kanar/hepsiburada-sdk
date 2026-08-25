@@ -23,8 +23,8 @@ const orders = await client.orders.list({ begindate: new Date(Date.now() - 3_600
 
 ## Read this before your first call
 
-Two mistakes account for nearly every failed Hepsiburada integration, and both look like
-something else when they happen.
+Three mistakes account for nearly every failed Hepsiburada integration. All three answer with a
+`401`, and none of them is a credential problem.
 
 ### 1. The `User-Agent` is a credential
 
@@ -61,6 +61,27 @@ instead:
 
 ```ts
 new HepsiburadaClient({ merchantId, username: 'acme_dev', password, userAgent: 'acme_dev' });
+```
+
+Confirmed against production on 2026-08-25: `merchantId:serviceKey` is accepted by all nine hosts,
+including `listing-external`, which had never been tested separately. One set of credentials, one
+`User-Agent`, twelve products.
+
+### 3. Questions want the merchant id in a header
+
+`api-asktoseller-merchant` is the only product that does not take the merchant id as a path
+segment. All six of its operations declare it as a **required header**, and omitting it returns a
+bare `401` with no body — indistinguishable from a rejected password, which sends you off to
+re-check credentials that were never wrong.
+
+`client.questions` sends it on every call. You only need to know this if you are using
+`client.request()` directly:
+
+```ts
+await client.request({
+  operationId: 'getIssues', module: 'question', method: 'GET', path: '/api/v1.0/issues',
+  headers: { merchantId },  // required, and not in the path
+});
 ```
 
 ---
@@ -110,7 +131,7 @@ remember.
 | Test Siparişi | `testOrders` | *sandbox only* | 1 |
 | Talep Oluşturma | `claims.create` | *sandbox only* | 1 |
 
-### Paging: six dialects, three envelopes
+### Paging: six dialects, four envelopes
 
 ```ts
 import { PAGINATION, paginate } from 'hepsiburada-sdk';
@@ -128,7 +149,10 @@ for await (const page of paginate(PAGINATION['order.getOrders'], (query) => clie
 | order — `/packages`, `/packages/status/unpacked` | **`Offset`**/`limit` | `items` |
 | finance | **`Offset`/`Limit`** | `items` |
 | question | `page`/`size`, **1-based** | `data` |
-| promotion | `page`/**`pagesize`** | `data` |
+| promotion | `page`/**`pagesize`** | **`Data.Items`** |
+
+Promotions are the odd one: the rows sit a level below the envelope *and* in PascalCase, and the
+published schema says neither. Descriptors carry a dotted path for that case.
 
 The casing is not even consistent within one product: `/packages` wants `Offset` and
 `/packages/shipped`, on the same host, wants `offset`. Send the wrong one and you get page one
@@ -223,9 +247,26 @@ Three body shapes, and one of them is not JSON:
 - `listing-external` answers 401 with `text/plain: Missing Credentials!`
 - `oms-external` answers 401 with an **empty** body and a JSON content type
 - the Go services declare their 400/401/500 bodies as a bare string
-- `mpop` wraps everything in `{ success, code, message, data }`, where `code: 0` means success —
-  and the schema permits a failure inside an HTTP 200, so the SDK checks the envelope on every
-  catalog response
+- `mpfinance-external` is a .NET service and answers `400` with ASP.NET **ProblemDetails**, where
+  `errors` is a *dictionary* of field to messages rather than the array `listing-external` sends
+
+`error.details` flattens all of them, whatever shape `errors` arrived in.
+
+### Failure reported inside a 200
+
+Three products answer `200` and put the verdict in the body — in three different spellings, and
+**only one of them documents it**:
+
+| Product | Envelope | Failure looks like |
+|---|---|---|
+| `mpop` (catalog) | `{ success, code, message, data }` | `success: false`, or a non-zero `code` |
+| `diskonto-external` (promotions) | `{ Success, Data }` | `Success: false` — PascalCase, undocumented |
+| `shipping-external` | `{ cargoFirms, error, msg }` | `error: true` — the flag is **inverted** |
+
+The SDK checks every decoded body rather than the ones a resource opts into. That is not
+belt-and-braces: two of the three envelopes above appear in no published schema, so an opt-in
+derived from the documents would have covered exactly one of them. A non-numeric `code` is
+ignored, so a currency code at the top of some response is not read as a status.
 
 `error.details` flattens all of them. `error.context.correlationId` is the `x-correlation-id`
 Hepsiburada support asks for; they retain it for seven days.
@@ -258,6 +299,21 @@ it as a failure. Queueing locally is the only reliable fix.
 - **There is no product delete.** Deactivate by setting stock and price to zero.
 - **`hbSku` is immutable**; `merchantSku` is yours. Both are strings, always — a merchant SKU with
   a leading zero is not a number.
+- **Promotions answer in PascalCase.** The published schema declares the whole response
+  camelCase — `success`, `data`, `totalCount`, `items`, `campaignId` — and production sends
+  `Success`, `Data`, `TotalCount`, `Items`, `CampaignId`, differing in nothing but the first
+  letter of every name. Read `data.items` off the real response and you get `undefined`, an empty
+  page, and a seller told they have no campaigns. The generated types and the paginator are
+  corrected from a live response; see `openapi/overlays/promotion.json`.
+- **`finance.transactions()` requires a filter**, though its document marks every filter optional
+  and only `Offset`/`Limit` required. Send those two alone and you get a `400` naming the
+  alternatives: one of `OrderNumber`, `PackageNumber`, `ReferenceDocument` or `Sku`, or one
+  complete date pair. The date pairs here are **ISO-8601**, not the `yyyy-MM-dd HH:mm` the OMS
+  filters take — this is a different team's service.
+- **The claim model is the stalest document in the set.** Eight fields on every live claim are
+  absent from it, including `AwaitingActionExpireDate` (the deadline you are judged against),
+  `Deliveries` (return cargo tracking) and `Reports` (customer photographs). All eight are typed
+  from observed responses and marked as such in the JSDoc.
 
 ---
 
@@ -312,7 +368,35 @@ Keep it off in production: it parses every response body twice.
 
 Known gaps are recorded in `openapi/overlays/` as RFC 7386 merge patches, and every entry carries
 `x-observed` (when) and `x-observed-evidence` (how) — enforced by a test. An entry becomes a no-op
-the day Hepsiburada publishes the same thing.
+the day Hepsiburada publishes the same thing. A second test asserts every patched field actually
+reaches `src/generated/`, because the mechanism failed silently once: overlays were merged after
+the document was normalised, so every schema correction was counted in the summary and dropped.
+
+### What the live pass found
+
+`npm run observe` calls eleven read-only endpoints against production, reduces each response to
+field names, types and counts, and walks it against the published schema. It refuses anything that
+is not an allowlisted `GET` in middleware, before the request is built, and a test asserts every
+allowlist entry is a published read. `openapi/verification.json` is the committed result — shapes
+only, never values, which is also asserted by a test.
+
+The pass on 2026-08-25 answered all eleven with `200` and produced the corrections above:
+
+| Product | Found |
+|---|---|
+| `promotion` | The entire response is PascalCase and nested one level deeper than documented |
+| `claim-list` | Eight undocumented fields on every claim, in mixed casing |
+| `catalog` | `available` and `productTypes` on every category |
+| `order` | `deci` per line and `totalDeci` per package — what the cargo company bills on |
+| `finance` | Requires a filter the document marks optional; ISO-8601 dates, unlike OMS |
+| `question` | Needs the merchant id as a header |
+| `listing`, `shipping`, `order` feeds | Match their documents exactly |
+
+Rerun it yourself:
+
+```
+HB_MERCHANT_ID=… HB_SERVICE_KEY=… HB_USER_AGENT=… npm run observe -- --write
+```
 
 ---
 

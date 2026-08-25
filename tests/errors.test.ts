@@ -10,6 +10,7 @@ import {
   HepsiburadaServerError,
   HepsiburadaValidationError,
   createApiError,
+  flattenMessages,
   parseErrorPayload,
   type HttpRequest,
   type HttpResponse,
@@ -136,5 +137,51 @@ describe('error.details', () => {
 
   it('is empty when there is nothing to say', () => {
     expect(createApiError(request, response({ body: '' })).details).toEqual([]);
+  });
+});
+
+describe('an errors field that is not an array', () => {
+  // `mpfinance-external` is a .NET service and answers a bad request with ProblemDetails, where
+  // `errors` is a dictionary of field name to messages. Iterating that as the array the listing
+  // service sends threw a TypeError out of the error path against production — so the SDK's own
+  // bug replaced the API's actual complaint, which is the worst failure mode error handling has.
+  it('reads a ProblemDetails dictionary', () => {
+    const payload = parseErrorPayload('{"errors":{"Offset":["The value is not valid."]}}');
+
+    expect(flattenMessages(payload?.errors)).toEqual(['Offset: The value is not valid.']);
+  });
+
+  it('keeps the field name, because the message alone has no subject', () => {
+    const error = createApiError(request, response({ status: 400, body: '{"errors":{"Limit":["Required."]}}' }));
+
+    expect(error.message).toMatch(/Limit: Required\./);
+  });
+
+  it('drops the prefix for a model-level error, which ASP.NET keys with the empty string', () => {
+    // This is the shape production actually sent: one entry under "", not under a field name.
+    const body = '{"errors":{"":["you must enter a date filter"]}}';
+
+    expect(createApiError(request, response({ status: 400, body })).details).toEqual([
+      'you must enter a date filter',
+    ]);
+  });
+
+  it('does not throw on any shape a service might put there', () => {
+    for (const errors of [null, 'a string', 42, { a: 'b' }, [{ no: 'message' }], [[]], undefined]) {
+      expect(() => flattenMessages(errors)).not.toThrow();
+    }
+  });
+
+  it('still reads the listing service array', () => {
+    const errors = [{ elementNo: 3, message: 'sku required' }, { errors: ['nested'] }];
+
+    expect(flattenMessages(errors)).toEqual(['sku required', 'nested']);
+  });
+
+  it('falls back to ProblemDetails detail and title, which carry no message field', () => {
+    const error = createApiError(request, response({ status: 400, body: '{"title":"Bad Request","detail":"no filter"}' }));
+
+    expect(error.message).toMatch(/no filter/);
+    expect(error.details).toEqual(['no filter']);
   });
 });

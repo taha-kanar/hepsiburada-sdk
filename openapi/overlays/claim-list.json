@@ -1,0 +1,126 @@
+{
+  "x-overlay-note": [
+    "Corrections to openapi/claim-list.json, applied by tools/generate.mjs as an RFC 7386 merge patch.",
+    "",
+    "The claim model is the stalest document in the set: eight fields on every live claim are",
+    "absent from it, and they are the operationally important ones. AwaitingActionExpireDate is a",
+    "deadline the merchant is judged against, Deliveries carries the return cargo tracking, and",
+    "Reports carries the photographs the customer attached.",
+    "",
+    "Note the casing: this one model mixes both conventions on the wire. lineItemId and tags are",
+    "camelCase; MerchantSku, Reason, Reports, Deliveries and AwaitingActionExpireDate are Pascal.",
+    "They are recorded exactly as they arrive, because that is what has to be read."
+  ],
+  "definitions": {
+    "model.Claim": {
+      "x-observed": "2026-08-25",
+      "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+      "x-observed-note": "Eight undocumented properties, observed across the live claim feed.",
+      "properties": {
+        "lineItemId": {
+          "type": "string",
+          "description": "The order line this claim was raised against. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "AwaitingActionExpireDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "description": "When the merchant's window to act on this claim closes. Null while no action is pending. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "MerchantSku": {
+          "type": "string",
+          "description": "The merchant's own SKU for the claimed item. Undocumented, and distinct from the documented `sku`.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "Reason": {
+          "type": "string",
+          "description": "The customer's stated reason for the claim. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "RequestedProduct": {
+          "x-nullable": true,
+          "description": "Observed only as null, on every claim in the live feed, so its type is deliberately left unknown rather than guessed. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "Reports": {
+          "type": "array",
+          "x-nullable": true,
+          "description": "Evidence the customer attached. Null when none was. Undocumented.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ImageUrl": {
+                "type": "string"
+              },
+              "ReportedBy": {
+                "type": "string"
+              }
+            }
+          },
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "Deliveries": {
+          "type": "array",
+          "description": "Return-shipment legs for this claim, absent on claims that have none. Undocumented.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "DeliveryCode": {
+                "type": "string"
+              },
+              "Status": {
+                "type": "string"
+              },
+              "Direction": {
+                "type": "string"
+              },
+              "CreatedDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "PackageNumber": {
+                "type": "string"
+              },
+              "TrackingNumber": {
+                "type": "string"
+              },
+              "CargoCompany": {
+                "type": "object",
+                "properties": {
+                  "TypeCode": {
+                    "type": "string"
+                  },
+                  "Alias": {
+                    "type": "string"
+                  },
+                  "Name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Observed only as an empty array, so the element type is inferred rather than seen. Undocumented.",
+          "x-observed": "2026-08-25",
+          "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json"
+        }
+      }
+    }
+  }
+}

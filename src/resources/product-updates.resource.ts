@@ -26,7 +26,6 @@ export class ProductUpdatesResource extends BaseResource {
       path: '/api/integrator/import',
       query: { version: VERSION },
       body: toFormData({ file: asJsonFile(document, 'integrator-ticket-upload.json') }),
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -44,7 +43,6 @@ export class ProductUpdatesResource extends BaseResource {
       path: '/api/integrator/status/{trackingId}',
       pathParams: { trackingId },
       query: { version: VERSION, ...query },
-      envelope: true,
       ...this.options(options),
     });
   }
@@ -57,7 +55,6 @@ export class ProductUpdatesResource extends BaseResource {
       method: 'GET',
       path: '/api/integrator/merchant/{merchantId}/hbSku/{hbSku}',
       pathParams: { merchantId: this.merchantId, hbSku },
-      envelope: true,
       ...this.options(options),
     });
   }

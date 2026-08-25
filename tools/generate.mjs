@@ -279,7 +279,9 @@ function docFor(schema, indent) {
   if (schema.description) parts.push(safeComment(schema.description));
   if (schema['x-observed']) {
     parts.push(
-      `@remarks Returned by the API but absent from Hepsiburada's published document (observed ${schema['x-observed']}).`
+      // Not "absent from the document": a correction is as often a field the document names
+      // differently as one it omits entirely, and the remark has to be true of both.
+      `@remarks Taken from a live response on ${schema['x-observed']}, which the published document contradicts. See openapi/overlays/.`
     );
   }
   if (schema['x-observed-note']) parts.push(safeComment(schema['x-observed-note']));
@@ -394,18 +396,60 @@ function paginationOf(entry, spec) {
   return undefined;
 }
 
-/** Which envelope the 2xx body uses, by looking for the row-carrying property. */
+const deref = (schema, spec) =>
+  schema?.$ref ? spec.schemas?.[schema.$ref.replace(/^#\/(components\/schemas|definitions)\//, '')] : schema;
+
+/** First property whose name matches one of `names`, compared without regard to case. */
+function pick(properties, names) {
+  const byLower = new Map(Object.keys(properties).map((key) => [key.toLowerCase(), key]));
+  for (const name of names) {
+    const hit = byLower.get(name);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+const ROWS = ['data', 'listings', 'items', 'content'];
+// Five spellings of "how many rows are there", and three of "how many pages". `count` is last
+// because it is the loosest; `mpfinance-external` is the one product that uses it bare.
+const TOTAL = ['totalcount', 'totalelements', 'totalitemcount', 'total', 'count'];
+const PAGES = ['pagecount', 'totalpages', 'totalpagecount'];
+
+/**
+ * Which envelope the 2xx body uses, by looking for the row-carrying property.
+ *
+ * Matching is case-insensitive and descends one level, because neither assumption held against
+ * production. `diskonto-external` answers `{Success, Data:{TotalCount, Items}}`: the rows are
+ * PascalCase *and* nested one level below the property a case-sensitive top-level search finds.
+ * Reading `data` off that response yields undefined, and a paginator that believes it reports the
+ * merchant has no campaigns — no error, no empty-page warning, just silence.
+ *
+ * A nested carrier is emitted as a dotted path, which `readPage` resolves.
+ */
 function envelopeOf(entry, spec) {
-  const success = successResponse(entry.operation);
-  let schema = success?.schema;
-  if (schema?.$ref) schema = spec.schemas?.[schema.$ref.replace(/^#\/(components\/schemas|definitions)\//, '')];
-
+  const schema = deref(successResponse(entry.operation)?.schema, spec);
   const properties = schema?.properties ?? {};
-  const items = ['data', 'listings', 'items', 'content'].find((key) => key in properties) ?? 'items';
-  const total = ['totalCount', 'totalElements', 'total'].find((key) => key in properties);
-  const pageCount = ['pageCount', 'totalPages'].find((key) => key in properties);
 
-  return { items, ...(total ? { total } : {}), ...(pageCount ? { pageCount } : {}) };
+  let items = pick(properties, ROWS);
+  let total = pick(properties, TOTAL);
+  let pageCount = pick(properties, PAGES);
+
+  // The rows may sit inside the carrier rather than being it.
+  const carrier = items ? deref(properties[items], spec) : undefined;
+  if (carrier && carrier.type !== 'array' && carrier.properties) {
+    const inner = carrier.properties;
+    const innerItems = pick(inner, ROWS);
+    if (innerItems) {
+      const innerTotal = pick(inner, TOTAL);
+      const innerPages = pick(inner, PAGES);
+      const prefix = items;
+      items = `${prefix}.${innerItems}`;
+      if (innerTotal) total = `${prefix}.${innerTotal}`;
+      if (innerPages) pageCount = `${prefix}.${innerPages}`;
+    }
+  }
+
+  return { items: items ?? 'items', ...(total ? { total } : {}), ...(pageCount ? { pageCount } : {}) };
 }
 
 // ---- overlays ----
@@ -547,8 +591,13 @@ function main() {
       continue;
     }
 
-    const raw = normalise(JSON.parse(readFileSync(file, 'utf8')));
-    const { spec, applied } = applyOverlay(product.module, raw);
+    // Patch first, normalise second. The overlay is written against the document as Hepsiburada
+    // publishes it -- that is what lets a drift finding's schemaPath be pasted straight in -- and
+    // `normalise` copies `components.schemas`/`definitions` into one internal `schemas` key.
+    // Merging after it patched the copy the generator no longer reads, so every schema correction
+    // was silently counted and dropped.
+    const { spec: patched, applied } = applyOverlay(product.module, JSON.parse(readFileSync(file, 'utf8')));
+    const spec = normalise(patched);
     overlaysApplied += applied;
 
     const { source, catalog: entries } = generateModule(product, spec);

@@ -1,0 +1,90 @@
+{
+  "x-overlay-note": [
+    "Corrections to openapi/promotion.json, applied by tools/generate.mjs as an RFC 7386 merge patch.",
+    "",
+    "diskonto-external answers in PascalCase. The document declares the whole response in",
+    "camelCase -- success, data, totalCount, items, campaignId -- and production returns Success,",
+    "Data, TotalCount, Items, CampaignId, field for field, differing in nothing but the first",
+    "letter of every name.",
+    "",
+    "This is the worst kind of documentation error, because nothing fails. Reading `data.items`",
+    "off the real response yields undefined, the paginator sees no rows, and the walk ends after",
+    "one page reporting that the merchant has no campaigns. A seller would believe it."
+  ],
+  "components": {
+    "schemas": {
+      "SelfCampaignDiscountListResponse": {
+        "x-observed": "2026-08-25",
+        "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+        "x-observed-note": "Returned as {Success, Data:{TotalCount, Items}}. Every property renamed to PascalCase; the camelCase names the document declares are deleted because production never sends them.",
+        "properties": {
+          "success": null,
+          "data": null,
+          "Success": {
+            "type": "boolean",
+            "description": "İşlemin başarılı olup olmadığını belirtir."
+          },
+          "Data": {
+            "type": "object",
+            "description": "Toplam kayıt sayısı ve kampanya listesini içerir.",
+            "properties": {
+              "TotalCount": {
+                "type": "integer"
+              },
+              "Items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SelfCampaignDiscountListItem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SelfCampaignDiscountListItem": {
+        "x-observed": "2026-08-25",
+        "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+        "x-observed-note": "Same fields as documented, every one of them PascalCase on the wire.",
+        "properties": {
+          "campaignId": null,
+          "name": null,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "status": null,
+          "limit": null,
+          "CampaignId": {
+            "type": "integer",
+            "description": "Kampanyanın benzersiz kimliği."
+          },
+          "Name": {
+            "type": "string",
+            "description": "Kampanyanın adı."
+          },
+          "Description": {
+            "type": "string",
+            "description": "Kampanyaya ait detaylı açıklama."
+          },
+          "StartDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Kampanyanın başlangıç tarih ve saati."
+          },
+          "EndDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Kampanyanın bitiş tarih ve saati."
+          },
+          "Status": {
+            "type": "integer",
+            "description": "Kampanyanın mevcut durumunu belirtir."
+          },
+          "Limit": {
+            "type": "number",
+            "description": "Kampanya için belirlenen kullanım limiti."
+          }
+        }
+      }
+    }
+  }
+}

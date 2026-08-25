@@ -114,7 +114,8 @@ export const PAGINATION: Record<string, PaginationDescriptor> = {
       "firstPage": 0
     },
     "response": {
-      "items": "data"
+      "items": "Data.Items",
+      "total": "Data.TotalCount"
     }
   },
   "order.getOrders": {
@@ -228,7 +229,8 @@ export const PAGINATION: Record<string, PaginationDescriptor> = {
       "limitParam": "Limit"
     },
     "response": {
-      "items": "items"
+      "items": "items",
+      "total": "count"
     }
   },
   "finance.getOrders": {
@@ -250,7 +252,9 @@ export const PAGINATION: Record<string, PaginationDescriptor> = {
       "firstPage": 1
     },
     "response": {
-      "items": "data"
+      "items": "data",
+      "total": "totalItemCount",
+      "pageCount": "totalPageCount"
     }
   },
   "claim-list.getClaims": {

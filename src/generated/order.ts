@@ -297,6 +297,10 @@ export interface ExternalPackageableWithRepresentation {
   quantity?: number;
 }
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Present on every package in the live feed.
+ */
 export interface ExternalRawPackageRepresentation {
   /** Paketin teslimat numarası */
   barcode?: string;
@@ -366,6 +370,11 @@ export interface ExternalRawPackageRepresentation {
   totalPrice?: Money;
   /** Paketin silinme tarihi */
   unpackedDate?: string;
+  /**
+   * Volumetric weight of the whole package, in deci -- what the cargo company bills on. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  totalDeci?: number;
 }
 
 export interface ExternalTrackingInfoRepresentation {
@@ -643,6 +652,10 @@ export interface PackageDetail {
   warehouse?: Warehouse;
 }
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Present on every line of every package in the live feed.
+ */
 export interface PackageLine {
   /** Satıcıdan alınan BNPL işlem ücreti tutarı */
   bnplCommissionAmount?: Money;
@@ -732,6 +745,11 @@ export interface PackageLine {
   warehouse?: Warehouse;
   /** Paketin ağırlık bilgisi */
   weight?: number;
+  /**
+   * Volumetric weight of this line, in deci. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  deci?: number;
 }
 
 export interface PaymentAwaitingOrderLineRepresentation {

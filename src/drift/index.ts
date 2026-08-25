@@ -19,5 +19,5 @@ export {
   type ResponseSchemaLocation,
   type SchemaDocument,
 } from './compare.js';
-export { loadSpecDocuments, type SpecDocuments } from './spec-documents.js';
+export { loadSpecDocuments, type LoadOptions, type SpecDocuments } from './spec-documents.js';
 export { createDriftMiddleware, type DriftMiddlewareOptions, type DriftReport } from './middleware.js';

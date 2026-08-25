@@ -9,6 +9,7 @@ import {
   HepsiburadaRateLimitError,
   HepsiburadaServerError,
   HepsiburadaValidationError,
+  flattenMessages,
   type HepsiburadaErrorContext,
   type HepsiburadaErrorPayload,
 } from './errors.js';
@@ -42,7 +43,7 @@ export function parseErrorPayload(body: string): HepsiburadaErrorPayload | undef
   if (/^[{["]/.test(trimmed)) {
     try {
       const parsed: unknown = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return { errors: parsed as NonNullable<HepsiburadaErrorPayload['errors']> };
+      if (Array.isArray(parsed)) return { errors: parsed };
       if (parsed && typeof parsed === 'object') return parsed as HepsiburadaErrorPayload;
       // A bare JSON scalar, e.g. the Go services' `"some message"`.
       return { message: String(parsed) };
@@ -56,10 +57,13 @@ export function parseErrorPayload(body: string): HepsiburadaErrorPayload | undef
 /** The best available human-readable summary of a failure. */
 function describe(payload: HepsiburadaErrorPayload | undefined, response: HttpResponse): string {
   if (payload) {
-    const first = payload.errors?.find((entry) => entry.message ?? entry.errors?.length);
-    const nested = first?.message ?? first?.errors?.[0];
+    const nested = flattenMessages(payload.errors)[0];
     if (nested) return nested;
     if (payload.message) return payload.message;
+    // ProblemDetails again: a 400 from `mpfinance-external` carries `title` and `detail`,
+    // never `message`.
+    if (typeof payload['detail'] === 'string' && payload['detail']) return payload['detail'];
+    if (typeof payload['title'] === 'string' && payload['title']) return payload['title'];
     if (payload.code !== undefined) return `code ${payload.code}`;
   }
   return response.statusText || `HTTP ${response.status}`;
@@ -112,27 +116,45 @@ export function createApiError(request: HttpRequest, response: HttpResponse): He
 }
 
 /**
- * Raise if the catalog services reported a failure inside an otherwise successful response.
+ * Raise if a service reported a failure inside an otherwise successful response.
  *
- * `mpop` wraps its answers in `{ success, code, message, data }`, where `code: 0` means success.
- * The schema permits `success: false` on an HTTP 200 and no published example proves whether it
- * happens, so this check is deliberately defensive: it fires only on an explicit `success: false`
- * or an explicit non-zero `code`, and is silent when neither field is present.
+ * Three products answer HTTP 200 and put the verdict in the body, in three different spellings —
+ * all three confirmed against production:
  *
- * n11 taught this lesson the expensive way — a rate-limit refusal arrived as HTTP 200 and decoded
- * as an empty page, because the check was gated on what the schema promised rather than run on
- * what actually came back. So this runs on every catalog response.
+ * - `mpop` (catalog): `{ success, code, message, data }`, where `code: 0` means success;
+ * - `diskonto-external` (promotions): `{ Success, Data }`, PascalCase, and the published schema
+ *   does not mention the envelope at all;
+ * - `shipping-external`: `{ cargoFirms, error, msg }`, where the flag is inverted.
+ *
+ * This runs on **every** decoded body rather than where a resource opted in. That flag was the
+ * bug: gating the check on what the document promised is how n11 turned a rate-limit refusal into
+ * an empty page, and two of the three envelopes above are undocumented, so no flag derived from
+ * the specs could have covered them.
+ *
+ * It stays conservative to earn that reach: only an explicit `false`, an explicit `error: true`,
+ * or a numeric non-zero `code` counts. `code` is required to be numeric because a non-numeric one
+ * is not a status — `Number('TRY') !== 0` is true, and a currency code at the top of some
+ * undocumented response must not be read as a failure.
  */
 export function assertEnvelopeSuccess(body: unknown, request: HttpRequest, response: HttpResponse): void {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return;
 
-  const envelope = body as HepsiburadaErrorPayload;
-  const failed = envelope.success === false || (envelope.code !== undefined && Number(envelope.code) !== 0);
+  const envelope = body as Record<string, unknown>;
+  const flag = envelope['success'] ?? envelope['Success'];
+  const code = envelope['code'] ?? envelope['Code'];
+  const error = envelope['error'] ?? envelope['Error'];
+
+  const numeric = Number(code);
+  const failed = flag === false || error === true || (Number.isFinite(numeric) && numeric !== 0);
   if (!failed) return;
 
-  const context = errorContext(request, response, envelope);
+  // `msg` is shipping's spelling of `message`; normalise so `describe` and `details` find it.
+  const payload = envelope as HepsiburadaErrorPayload;
+  const message = payload.message ?? (envelope['msg'] as string | undefined) ?? (envelope['Message'] as string | undefined);
+  const normalised: HepsiburadaErrorPayload = { ...payload, ...(message ? { message } : {}) };
+
   throw new HepsiburadaApiError(
-    `${request.context.operationId} failed: ${describe(envelope, response)}`,
-    context
+    `${request.context.operationId} failed: ${describe(normalised, response)}`,
+    errorContext(request, response, normalised)
   );
 }

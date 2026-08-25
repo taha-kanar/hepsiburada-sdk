@@ -246,6 +246,10 @@ export interface VariantAttributesDTO {
   mandatory?: boolean;
 }
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Both fields present on every category returned by GET /api/categories/get-all-categories.
+ */
 export interface BaseCategoryDTO {
   categoryId?: number;
   name?: string;
@@ -257,6 +261,16 @@ export interface BaseCategoryDTO {
   type?: "HX" | "HB" | "HC";
   sortId?: string;
   merge?: boolean;
+  /**
+   * Whether the category currently accepts new products. Undocumented; also accepted as a query filter on this operation.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  available?: boolean;
+  /**
+   * Product-type names valid in this category. Undocumented.
+   * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+   */
+  productTypes?: string[];
 }
 
 export interface PageResponseBaseCategoryDTO {

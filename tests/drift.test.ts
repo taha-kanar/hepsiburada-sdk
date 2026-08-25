@@ -269,3 +269,46 @@ describe('loadSpecDocuments', () => {
     expect(found?.schema).toBeDefined();
   });
 });
+
+describe('loading the shipped documents', () => {
+  const specsDir = new URL('../openapi/', import.meta.url).pathname;
+
+  it('folds in the recorded corrections by default', () => {
+    // Without this, the middleware reports the same eight known claim fields on every response
+    // and the findings that matter are lost in them — which is how a drift check gets switched
+    // off and stops earning its keep.
+    const corrected = loadSpecDocuments({ specsDir });
+    const promotion = corrected['promotion']?.components?.schemas?.['SelfCampaignDiscountListResponse'];
+
+    expect(Object.keys(promotion?.properties ?? {})).toEqual(['Success', 'Data']);
+  });
+
+  it('can compare against the documents exactly as published', () => {
+    const published = loadSpecDocuments({ specsDir, overlays: false });
+    const promotion = published['promotion']?.components?.schemas?.['SelfCampaignDiscountListResponse'];
+
+    expect(Object.keys(promotion?.properties ?? {})).toEqual(['success', 'data']);
+  });
+
+  it('still accepts a bare directory string', () => {
+    expect(Object.keys(loadSpecDocuments(specsDir))).toHaveLength(12);
+  });
+
+  it('reports nothing for a live response once its gaps are recorded', () => {
+    const corrected = loadSpecDocuments({ specsDir });
+    const document = corrected['promotion']!;
+    const located = findResponseSchema(document, 'GET', '/self-campaign/{merchantId}/discounts')!;
+    const live = { Success: true, Data: { TotalCount: 1, Items: [{ CampaignId: 1, Name: 'x', Status: 2 }] } };
+
+    expect(findSchemaDrift(document, located.schema, live)).toEqual([]);
+  });
+
+  it('reports the same response against the published document, which is the evidence trail', () => {
+    const published = loadSpecDocuments({ specsDir, overlays: false });
+    const document = published['promotion']!;
+    const located = findResponseSchema(document, 'GET', '/self-campaign/{merchantId}/discounts')!;
+    const live = { Success: true, Data: { TotalCount: 1, Items: [] } };
+
+    expect(findSchemaDrift(document, located.schema, live).map((finding) => finding.path)).toEqual(['Success', 'Data']);
+  });
+});

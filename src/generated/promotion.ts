@@ -78,31 +78,39 @@ export interface CancelSelfCampaignRequest {
   campaignId?: number;
 }
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Returned as {Success, Data:{TotalCount, Items}}. Every property renamed to PascalCase; the camelCase names the document declares are deleted because production never sends them.
+ */
 export interface SelfCampaignDiscountListResponse {
   /** İşlemin başarılı olup olmadığını belirtir. */
-  success?: boolean;
+  Success?: boolean;
   /** Toplam kayıt sayısı ve kampanya listesini içerir. */
-  data?: {
-  totalCount?: number;
-  items?: SelfCampaignDiscountListItem[];
+  Data?: {
+  TotalCount?: number;
+  Items?: SelfCampaignDiscountListItem[];
 };
 }
 
+/**
+ * @remarks Taken from a live response on 2026-08-25, which the published document contradicts. See openapi/overlays/.
+ * Same fields as documented, every one of them PascalCase on the wire.
+ */
 export interface SelfCampaignDiscountListItem {
   /** Kampanyanın benzersiz kimliği. */
-  campaignId?: number;
+  CampaignId?: number;
   /** Kampanyanın adı. */
-  name?: string;
+  Name?: string;
   /** Kampanyaya ait detaylı açıklama. */
-  description?: string;
+  Description?: string;
   /** Kampanyanın başlangıç tarih ve saati. */
-  startDate?: string;
+  StartDate?: string;
   /** Kampanyanın bitiş tarih ve saati. */
-  endDate?: string;
+  EndDate?: string;
   /** Kampanyanın mevcut durumunu belirtir. */
-  status?: number;
+  Status?: number;
   /** Kampanya için belirlenen kullanım limiti. */
-  limit?: number;
+  Limit?: number;
 }
 
 export interface MerchantCategoriesResponse {

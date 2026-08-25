@@ -12,6 +12,7 @@ export {
   HepsiburadaServerError,
   HepsiburadaTimeoutError,
   HepsiburadaValidationError,
+  flattenMessages,
   type HepsiburadaErrorContext,
   type HepsiburadaErrorPayload,
 } from './errors.js';

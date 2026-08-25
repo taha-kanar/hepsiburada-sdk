@@ -1,0 +1,35 @@
+{
+  "x-overlay-note": [
+    "Corrections to openapi/finance.json, applied by tools/generate.mjs as an RFC 7386 merge patch.",
+    "",
+    "The document marks every filter on /transactions optional. The service requires one of them,",
+    "and says so in a 400 rather than returning an unfiltered page:",
+    "",
+    "  OrderNumber, PackageNumber, ReferenceDocument, Sku  --  if one of these parameters is empty,",
+    "  you must enter a date filter. (RecordDateStart - RecordDateEnd) OR (DueDateStart - DueDateEnd)",
+    "  OR (OrderDateStart - OrderDateEnd) OR (PaymentDateStart - PaymentDateEnd)",
+    "",
+    "So `Offset`/`Limit` alone -- the only two parameters the document marks required -- is a 400.",
+    "The date pairs are ISO-8601 here, not the yyyy-MM-dd HH:mm the OMS filters take; a seven-day",
+    "RecordDateStart/RecordDateEnd window in that form was answered with 200."
+  ],
+  "paths": {
+    "/transactions/merchantid/{merchantId}": {
+      "get": {
+        "x-requires-filter": [
+          "OrderNumber",
+          "PackageNumber",
+          "ReferenceDocument",
+          "Sku",
+          "RecordDateStart+RecordDateEnd",
+          "DueDateStart+DueDateEnd",
+          "OrderDateStart+OrderDateEnd",
+          "PaymentDateStart+PaymentDateEnd"
+        ],
+        "x-observed": "2026-08-25",
+        "x-observed-evidence": "live read-only probe against production (tools/observe.mjs); shapes recorded in openapi/verification.json",
+        "x-observed-note": "A query carrying only Offset and Limit is refused with 400 and the message quoted above. One of the listed identifiers, or one complete date pair, must be supplied."
+      }
+    }
+  }
+}
