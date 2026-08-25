@@ -1,0 +1,118 @@
+{
+  "source": "https://developers.hepsiburada.com/api/v1/public/docs/hepsiburada/{slug}/{version}/openapi",
+  "note": "Hepsiburada publishes a spec per product. The `servers` block in every one of them names the SANDBOX host; production is the same name with `-sit` removed, and is never published because access is granted per-merchant through a support ticket. Both are recorded here so the generator never has to derive one from the other.",
+  "products": [
+    {
+      "module": "catalog",
+      "slug": "katalog-urun-entegrasyonu",
+      "version": "v1.0",
+      "title": "Katalog Ürün Entegrasyonu",
+      "sit": "https://mpop-sit.hepsiburada.com/product",
+      "prod": "https://mpop.hepsiburada.com/product",
+      "operations": 14
+    },
+    {
+      "module": "product-update",
+      "slug": "urun-guncelleme-entegrasyonu",
+      "version": "v1.0",
+      "title": "Ürün Güncelleme Entegrasyonu",
+      "sit": "https://mpop-sit.hepsiburada.com/ticket-api",
+      "prod": "https://mpop.hepsiburada.com/ticket-api",
+      "operations": 3
+    },
+    {
+      "module": "listing",
+      "slug": "listeleme",
+      "version": "v1",
+      "title": "Listeleme",
+      "sit": "https://listing-external-sit.hepsiburada.com",
+      "prod": "https://listing-external.hepsiburada.com",
+      "operations": 18
+    },
+    {
+      "module": "promotion",
+      "slug": "satici-promosyonu-entegrasyonu",
+      "version": "v1.0",
+      "title": "Satıcı Promosyonu Entegrasyonu",
+      "sit": "https://diskonto-external-sit.hepsiburada.com",
+      "prod": "https://diskonto-external.hepsiburada.com",
+      "operations": 9
+    },
+    {
+      "module": "order",
+      "slug": "siparis-olusturma-entegrasyonu",
+      "version": "v1.0",
+      "title": "Sipariş Entegrasyonu (OMS)",
+      "sit": "https://oms-external-sit.hepsiburada.com",
+      "prod": "https://oms-external.hepsiburada.com",
+      "operations": 28
+    },
+    {
+      "module": "test-order",
+      "slug": "test-siparisi-olusturma",
+      "version": "v1.0",
+      "title": "Test Siparişi Oluşturma",
+      "sit": "https://oms-stub-external-sit.hepsiburada.com",
+      "prod": null,
+      "sitOnly": true,
+      "note": "A sandbox stub. The production hostname does not resolve — it is not a gap in this manifest.",
+      "operations": 1
+    },
+    {
+      "module": "shipping",
+      "slug": "shipping-entegrasyonu",
+      "version": "v1.0",
+      "title": "Shipping Entegrasyonu",
+      "sit": "https://shipping-external-sit.hepsiburada.com",
+      "prod": "https://shipping-external.hepsiburada.com",
+      "operations": 4
+    },
+    {
+      "module": "finance",
+      "slug": "muhasebe-entegrasyonu",
+      "version": "v1.0",
+      "title": "Muhasebe Entegrasyonu",
+      "sit": "https://mpfinance-external-sit.hepsiburada.com",
+      "prod": "https://mpfinance-external.hepsiburada.com",
+      "operations": 2
+    },
+    {
+      "module": "question",
+      "slug": "saticiya-sor-entegrasyonu",
+      "version": "v1.0",
+      "title": "Satıcıya Sor Entegrasyonu",
+      "sit": "https://api-asktoseller-merchant-sit.hepsiburada.com",
+      "prod": "https://api-asktoseller-merchant.hepsiburada.com",
+      "operations": 6
+    },
+    {
+      "module": "claim-create",
+      "slug": "talep-olusturma",
+      "version": "v1.0",
+      "title": "Talep Oluşturma",
+      "sit": "https://claim-stub-external-sit.hepsiburada.com",
+      "prod": null,
+      "sitOnly": true,
+      "note": "A sandbox stub for creating test claims. The production hostname does not resolve.",
+      "operations": 1
+    },
+    {
+      "module": "claim-list",
+      "slug": "talep-listeleme",
+      "version": "v1.0",
+      "title": "Talep Listeleme",
+      "sit": "https://oms-external-sit.hepsiburada.com",
+      "prod": "https://oms-external.hepsiburada.com",
+      "operations": 5
+    },
+    {
+      "module": "supplier",
+      "slug": "tedarikci-entegrasyonu",
+      "version": "v1.0",
+      "title": "Tedarikçi Entegrasyonu",
+      "sit": "https://supplier-api-external-sit.hepsiburada.com",
+      "prod": "https://supplier-api-external.hepsiburada.com",
+      "operations": 5
+    }
+  ]
+}

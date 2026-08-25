@@ -1,0 +1,279 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "HEPSIBURADA - SİPARİŞ OLUŞTURMA ENTEGRASYONU",
+    "contact": {},
+    "version": "1.0.0"
+  },
+  "host": "oms-stub-external-sit.hepsiburada.com",
+  "paths": {
+    "/orders/merchantId/{merchantId}": {
+      "post": {
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "description": "Bu servis belirtilen satıcı için test siparişi oluşturulmasını sağlar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Test siparisi olusturma"
+        ],
+        "summary": "Test siparisi olusturma",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "İsteği yapan client'ın bilgilerini içerir",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Satıcının unique Id değeridir",
+            "name": "merchantId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Oluşturulmak istenen sipariş bilgileridir",
+            "name": "c",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/git_hepsiburada_com_oms_fulfilment-projections_application_api_externalstub_model.Order"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "git_hepsiburada_com_oms_fulfilment-projections_application_api_externalstub_model.Money": {
+      "type": "object",
+      "properties": {
+        "Amount": {
+          "type": "number"
+        },
+        "Currency": {
+          "type": "string",
+          "default": "TRY"
+        }
+      }
+    },
+    "git_hepsiburada_com_oms_fulfilment-projections_application_api_externalstub_model.Order": {
+      "type": "object",
+      "properties": {
+        "Customer": {
+          "description": "Müşteri bilgileri",
+          "allOf": [
+            {
+              "$ref": "#/definitions/model.Customer"
+            }
+          ]
+        },
+        "DeliveryAddress": {
+          "description": "Teslimat adresi",
+          "allOf": [
+            {
+              "$ref": "#/definitions/model.DeliveryAddress"
+            }
+          ]
+        },
+        "LineItems": {
+          "description": "Siparişteki kalem listesi",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.LineItem"
+          }
+        },
+        "OrderDate": {
+          "description": "Siparişin oluşturulma tarihi",
+          "type": "string"
+        },
+        "OrderNumber": {
+          "description": "Sipariş numarası",
+          "type": "string"
+        },
+        "PaymentStatus": {
+          "description": "Siparişin ödeme durumu",
+          "type": "string"
+        }
+      }
+    },
+    "model.Customer": {
+      "type": "object",
+      "properties": {
+        "CustomerId": {
+          "description": "Müşterinin unique Id bilgisi",
+          "type": "string",
+          "default": "dfc8a27f-faae-4cb2-859c-8a7d50ee77be"
+        },
+        "Name": {
+          "description": "Müşterinin adı ve soyadı",
+          "type": "string",
+          "default": "Test User"
+        }
+      }
+    },
+    "model.DeliveryAddress": {
+      "type": "object",
+      "properties": {
+        "AddressDetail": {
+          "description": "Adres bilgileri",
+          "type": "string",
+          "default": "Trump Towers"
+        },
+        "AddressId": {
+          "description": "Adresin unique Id değeri",
+          "type": "string",
+          "default": "e66765b3-d37d-488c-ae15-47051245dc9b"
+        },
+        "AlternatePhoneNumber": {
+          "description": "Müşterinin Gsm numarası",
+          "type": "string",
+          "default": "045321538212"
+        },
+        "City": {
+          "description": "Adresin şehir bilgisi",
+          "type": "string",
+          "default": "İstanbul"
+        },
+        "CountryCode": {
+          "description": "Ülke kodu",
+          "type": "string",
+          "default": "TR"
+        },
+        "District": {
+          "description": "Adresin mahalle/semt bilgisi",
+          "type": "string",
+          "default": "Kustepe"
+        },
+        "Email": {
+          "description": "Müşterinin mail bilgisi",
+          "type": "string",
+          "default": "customer@hepsiburada.com.tr"
+        },
+        "Name": {
+          "description": "Teslim edilecek kişinin ismi",
+          "type": "string",
+          "default": "Hepsiburada Office"
+        },
+        "PhoneNumber": {
+          "description": "Müşterinin telefon numarası",
+          "type": "string",
+          "default": "902822613231"
+        }
+      }
+    },
+    "model.LineItem": {
+      "type": "object",
+      "properties": {
+        "CargoCompanyId": {
+          "description": "Kargo firması unique Id değeri",
+          "type": "integer",
+          "default": 1
+        },
+        "CustomizedProductValue": {
+          "description": "Özelleştirilebilir kalemin içerik bilgisi",
+          "type": "string"
+        },
+        "DeliveryOptionId": {
+          "description": "Paketin teslimat seçeneği",
+          "type": "integer",
+          "default": 1
+        },
+        "ListingId": {
+          "description": "Kalemin unique Listing Id değeri",
+          "type": "string"
+        },
+        "MerchantId": {
+          "description": "Kalemin satıcısının unique Id değeri",
+          "type": "string"
+        },
+        "MerchantSku": {
+          "description": "Kalemin satıcıya ait SKU değeri",
+          "type": "string"
+        },
+        "Price": {
+          "description": "Kalemin birim tutarı",
+          "allOf": [
+            {
+              "$ref": "#/definitions/git_hepsiburada_com_oms_fulfilment-projections_application_api_externalstub_model.Money"
+            }
+          ]
+        },
+        "Quantity": {
+          "description": "Kalem adedi",
+          "type": "integer"
+        },
+        "Sku": {
+          "description": "Kalemin sku değeri",
+          "type": "string"
+        },
+        "TagList": {
+          "description": "Kalemin etiket listesi",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "TotalPrice": {
+          "description": "Kalemin toplam tutarı",
+          "allOf": [
+            {
+              "$ref": "#/definitions/git_hepsiburada_com_oms_fulfilment-projections_application_api_externalstub_model.Money"
+            }
+          ]
+        },
+        "Vat": {
+          "description": "Kalemin kdv tutarı",
+          "type": "number"
+        },
+        "isBnplMP": {
+          "description": "BnplMP kalem olup olmadığı bilgisi",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    }
+  }
+}

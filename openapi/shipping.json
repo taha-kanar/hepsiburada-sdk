@@ -1,0 +1,409 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Entegratörler için shipping profile servisleri",
+    "title": "Hepsiburada - Shipping Entegrasyonu",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "#shipping-team",
+      "email": "shipping@hepsiburada.com"
+    },
+    "version": "1.0"
+  },
+  "host": "shipping-external-sit.hepsiburada.com",
+  "basePath": "/",
+  "paths": {
+    "/cargoFirms/{merchantId}": {
+      "get": {
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "description": "Bu servis Hepsiburada sisteminde tanımlı olan tüm kargo bilgilerinin dönülmesini sağlamaktadır. Teslimat profili oluşturma aşamasında bu kargo bilgileri kullanılacaktır.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Profil Servisleri"
+        ],
+        "summary": "Kargo Firmaları Listeleme",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "MerchantId",
+            "name": "merchantId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/model.ShippingProfileLabelCargoFirm"
+              }
+            }
+          },
+          "400": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/profile/createByMerchantId": {
+      "post": {
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "description": "Bu servis merchant'ın yeni profil oluşturmasında kullanılır.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Profil Servisleri"
+        ],
+        "summary": "Profil Oluşturma",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "ShippingProfileExternalRequest",
+            "name": "saveExternalProfileRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.ShippingProfileExternalRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/profile/updateByMerchantId": {
+      "put": {
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "description": "Bu servis merchant'ın mevcut profilini güncellemesinde kullanılır.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Profil Servisleri"
+        ],
+        "summary": "Profil Güncelleme",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "ShippingProfileExternalRequest",
+            "name": "updateExternalProfileRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/model.ShippingProfileExternalRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/model.ApiResponse"
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{merchantId}": {
+      "get": {
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "description": "Bu servis merchant üzerinde tanımlı olan teslimat profillerinin listelenmesini sağlar.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Profil Servisleri"
+        ],
+        "summary": "Profil Listeleme",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "MerchantId",
+            "name": "merchantId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/model.ShippingProfileByMerchantIdRes"
+              }
+            }
+          },
+          "400": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "model.APIError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "model.ApiResponse": {
+      "type": "object",
+      "properties": {
+        "data": {},
+        "error": {
+          "$ref": "#/definitions/model.APIError"
+        },
+        "success": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "model.ProfileLabel": {
+      "type": "object",
+      "properties": {
+        "cargoFirmId": {
+          "type": "integer"
+        },
+        "labelId": {
+          "type": "integer"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      }
+    },
+    "model.ShippingProfileByMerchantIdExternalModel": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "model.ShippingProfileByMerchantIdRes": {
+      "type": "object",
+      "properties": {
+        "profileIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.ShippingProfileByMerchantIdExternalModel"
+          }
+        }
+      }
+    },
+    "model.ShippingProfileExternalRequest": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "merchantId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "profileLabels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.ProfileLabel"
+          }
+        }
+      }
+    },
+    "model.ShippingProfileLabelCargoFirm": {
+      "type": "object",
+      "properties": {
+        "cargoFirmDisplayOrder": {
+          "type": "integer"
+        },
+        "cargoFirmId": {
+          "type": "integer"
+        },
+        "cargoFirmName": {
+          "type": "string"
+        },
+        "isExceptional": {
+          "type": "boolean"
+        },
+        "isVisible": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    }
+  }
+}

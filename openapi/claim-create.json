@@ -1,0 +1,153 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Test Ortamı iade ve Değişim oluşturma entegrasyonu",
+    "version": "",
+    "title": "HEPSIBURADA - OMS CLAIM OLUŞTURMA ENTEGRASYONU",
+    "contact": {}
+  },
+  "host": "claim-stub-external-sit.hepsiburada.com",
+  "basePath": "/",
+  "paths": {
+    "/claims/merchant/{merchantid}/create": {
+      "post": {
+        "tags": [
+          "Test için claim oluşturma"
+        ],
+        "summary": "Yeni bir talep oluşturulmasını sağlar",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "operationId": "createClaimUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "createClaimRequest",
+            "description": "createClaimRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateClaim"
+            }
+          },
+          {
+            "name": "merchantid",
+            "in": "path",
+            "description": "merchantid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CreateClaimResponse"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "Claim": {
+      "type": "object",
+      "properties": {
+        "claimNumber": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "title": "Claim"
+    },
+    "CreateClaim": {
+      "type": "object",
+      "properties": {
+        "newSKU": {
+          "type": "string",
+          "description": "Talep yapılacak sku"
+        },
+        "orderNumber": {
+          "type": "string",
+          "description": "Talep açılacak sipariş"
+        },
+        "type": {
+          "enum": [
+            "change",
+            "missingitem",
+            "missingpart",
+            "missinginvoice",
+            "extraproduct",
+            "return",
+            "renewproduct"
+          ],
+          "type": "string",
+          "description": "Talep tipi"
+        },
+        "reason": {
+          "enum": [
+            "ProductIsBroken",
+            "ProductIsDamaged",
+            "WrongProductSentByMerchant"
+          ],
+          "type": "string",
+          "description": "Talep nedeni"
+        }
+      },
+      "title": "CreateClaim",
+      "description": "Parametreler"
+    },
+    "CreateClaimResponse": {
+      "type": "object",
+      "properties": {
+        "ClaimList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Claim"
+          }
+        }
+      },
+      "title": "CreateClaimResponse"
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    }
+  }
+}

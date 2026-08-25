@@ -1,0 +1,57 @@
+{
+  "x-overlay-note": [
+    "Corrections to openapi/order.json, applied by tools/generate.mjs as an RFC 7386 merge patch.",
+    "Every entry carries x-observed (when it was seen) and x-observed-evidence (how). An entry",
+    "becomes a no-op the day Hepsiburada publishes the same thing, so nothing has to be removed by",
+    "hand.",
+    "",
+    "The date-filter entries below are the important ones. The document declares begindate and",
+    "enddate on these four operations, and production rejects them: every one of 28+ formats tried",
+    "against them returned 400 WrongDateFormat. Only the base /orders/merchantid/{merchantId}",
+    "endpoint actually honours the filter. This is worse than a missing feature, because the",
+    "neighbouring endpoint that DOES accept a date accepts an ISO-8601 value it cannot match,",
+    "answering 200 with an empty page -- so a caller who guesses gets silence rather than an error."
+  ],
+  "paths": {
+    "/orders/merchantid/{merchantId}": {
+      "get": {
+        "x-supports-date-filter": true,
+        "x-observed": "2026-06-05",
+        "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
+        "x-observed-note": "The only operation in this product that honours begindate. The value is read as Turkey local time (UTC+3, no DST) in the format yyyy-MM-dd HH:mm; an ISO-8601 value is accepted and silently matches nothing."
+      }
+    },
+    "/orders/merchantid/{merchantId}/cancelled": {
+      "get": {
+        "x-rejects-date-filter": true,
+        "x-observed": "2026-06-05",
+        "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
+        "x-observed-note": "Declares begindate/enddate but answers 400 WrongDateFormat for every format tried."
+      }
+    },
+    "/packages/merchantid/{merchantId}/shipped": {
+      "get": {
+        "x-rejects-date-filter": true,
+        "x-observed": "2026-06-05",
+        "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
+        "x-observed-note": "Declares begindate/enddate but answers 400 WrongDateFormat for every format tried."
+      }
+    },
+    "/packages/merchantid/{merchantId}/delivered": {
+      "get": {
+        "x-rejects-date-filter": true,
+        "x-observed": "2026-06-05",
+        "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
+        "x-observed-note": "Declares begindate/enddate but answers 400 WrongDateFormat for every format tried."
+      }
+    },
+    "/packages/merchantid/{merchantId}/undelivered": {
+      "get": {
+        "x-rejects-date-filter": true,
+        "x-observed": "2026-06-05",
+        "x-observed-evidence": "live production calls against a merchant account, 2026-06-05",
+        "x-observed-note": "Declares begindate/enddate but answers 400 WrongDateFormat for every format tried."
+      }
+    }
+  }
+}

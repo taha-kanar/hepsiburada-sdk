@@ -1,0 +1,760 @@
+{
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "HEPSIBURADA - TALEP ENTEGRASYONU",
+    "contact": {},
+    "version": "1.0.0"
+  },
+  "host": "oms-external-sit.hepsiburada.com",
+  "paths": {
+    "/claims/merchantId/{merchantId}": {
+      "get": {
+        "tags": [
+          "Taleplerin Listelenmesi"
+        ],
+        "summary": "Merchant için bütün talepleri getirir",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Merchant Id",
+            "name": "merchantId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Begin Claim Created Date(yyyy-MM-dd HH:mm)",
+            "name": "beginDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "End Claim Created Date(yyyy-MM-dd HH:mm)",
+            "name": "endDate",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "Offset",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Limit",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/model.Claim"
+              }
+            },
+            "headers": {
+              "X-Limit": {
+                "type": "integer",
+                "description": "Maximum number of items per page (requested limit)"
+              },
+              "X-Offset": {
+                "type": "integer",
+                "description": "Number of items skipped from the beginning (for pagination)"
+              },
+              "X-Page": {
+                "type": "integer",
+                "description": "Current page number (calculated from offset and limit)"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of claims matching the filter criteria"
+              },
+              "X-Total-Pages": {
+                "type": "integer",
+                "description": "Total number of pages available (calculated from total count and limit)"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/claims/merchantId/{merchantId}/status/{status}": {
+      "get": {
+        "tags": [
+          "Taleplerin Listelenmesi"
+        ],
+        "summary": "Merchant için belirtilen statüde ki talepleri getirir",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Merchant Id",
+            "name": "merchantId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "NewRequest",
+              "Accepted",
+              "AwaitingAction",
+              "InDispute",
+              "Rejected",
+              "Refunded",
+              "Cancelled",
+              "AwaitingPreApproval"
+            ],
+            "type": "string",
+            "description": "Status",
+            "name": "status",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "Offset",
+            "name": "offset",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Limit",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Begin Claim Created Date(yyyy-MM-dd HH:mm)",
+            "name": "beginDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "End Claim Created Date(yyyy-MM-dd HH:mm)",
+            "name": "endDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Begin Claim Status Date(yyyy-MM-dd HH:mm)",
+            "name": "statusBeginDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "End Claim Status Date(yyyy-MM-dd HH:mm)",
+            "name": "statusEndDate",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/model.Claim"
+              }
+            },
+            "headers": {
+              "X-Limit": {
+                "type": "integer",
+                "description": "Maximum number of items per page (requested limit)"
+              },
+              "X-Offset": {
+                "type": "integer",
+                "description": "Number of items skipped from the beginning (for pagination)"
+              },
+              "X-Page": {
+                "type": "integer",
+                "description": "Current page number (calculated from offset and limit)"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of claims matching the filter criteria"
+              },
+              "X-Total-Pages": {
+                "type": "integer",
+                "description": "Total number of pages available (calculated from total count and limit)"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/claims/number/{claimNumber}/accept": {
+      "post": {
+        "tags": [
+          "Talep Onay/Red"
+        ],
+        "summary": "İletilen Talebin Onaylanmasını Sağlar.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Claim Number",
+            "name": "claimNumber",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "body",
+            "name": "c",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/model.AcceptClaimRequest"
+            }
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/claims/number/{claimNumber}/preapprovalconfirm": {
+      "post": {
+        "tags": [
+          "Talep Onay/Red"
+        ],
+        "summary": "PreApproval talebi onayla",
+        "description": "Belirtilen claim numarasına sahip AwaitingPreApproval statüsündeki talebi satıcı olarak onaylar",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Claim Number",
+            "name": "claimNumber",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "PreApproval Confirm Request Body",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/model.PreApprovalConfirmRequest"
+            }
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/claims/number/{claimNumber}/reject": {
+      "post": {
+        "tags": [
+          "Talep Onay/Red"
+        ],
+        "summary": "İletilen Talebin Reddedilmesini Sağlar.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Claim Number",
+            "name": "claimNumber",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "body",
+            "name": "c",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/model.RejectClaimRequest"
+            }
+          },
+          {
+            "type": "string",
+            "description": "User-Agent",
+            "name": "User-Agent",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "model.Claim": {
+      "type": "object",
+      "properties": {
+        "claimDate": {
+          "type": "string"
+        },
+        "claimType": {
+          "type": "string"
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "merchantRejectionStatement": {
+          "type": "string"
+        },
+        "number": {
+          "type": "string"
+        },
+        "orderDate": {
+          "type": "string"
+        },
+        "orderNumber": {
+          "type": "string"
+        },
+        "priceAmount": {
+          "type": "number"
+        },
+        "priceCurrency": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "refundAmount": {
+          "type": "number"
+        },
+        "refundCurrency": {
+          "type": "string"
+        },
+        "refundDate": {
+          "type": "string"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "totalPriceAmount": {
+          "type": "number"
+        },
+        "finalizedWith": {
+          "type": "string"
+        },
+        "IsRenewProductTransferAccepted": {
+          "type": "boolean"
+        },
+        "awaitingPreApprovalExpireDate": {
+          "type": "string"
+        },
+        "markedAwaitingPreApprovalDate": {
+          "type": "string"
+        },
+        "preApprovalReason": {
+          "type": "string"
+        },
+        "preApprovalConfirmedBy": {
+          "type": "string"
+        },
+        "preApprovalConfirmedDate": {
+          "type": "string"
+        }
+      }
+    },
+    "model.Money": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        }
+      }
+    },
+    "model.PackageLine": {
+      "type": "object",
+      "properties": {
+        "cargoPaymentInfo": {
+          "type": "string"
+        },
+        "commission": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "customerDelivery": {
+          "type": "string"
+        },
+        "customizedText01": {
+          "type": "string"
+        },
+        "customizedText02": {
+          "type": "string"
+        },
+        "customizedText03": {
+          "type": "string"
+        },
+        "customizedText04": {
+          "type": "string"
+        },
+        "deliveryType": {
+          "type": "string"
+        },
+        "gtip": {
+          "type": "string"
+        },
+        "hbSku": {
+          "type": "string"
+        },
+        "lineItemId": {
+          "type": "string"
+        },
+        "listingId": {
+          "type": "string"
+        },
+        "merchantId": {
+          "type": "string"
+        },
+        "merchantSku": {
+          "type": "string"
+        },
+        "merchantTotalPrice": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "merchantUnitPrice": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "orderDate": {
+          "type": "string"
+        },
+        "orderNumber": {
+          "type": "string"
+        },
+        "pickupTime": {
+          "type": "string"
+        },
+        "price": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "productName": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/model.Property"
+          }
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "totalHBDiscount": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "totalPrice": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "unitHBDiscount": {
+          "type": "object",
+          "$ref": "#/definitions/model.Money"
+        },
+        "vat": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number"
+        }
+      }
+    },
+    "model.Property": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "model.RejectClaimRequest": {
+      "type": "object",
+      "properties": {
+        "ClaimRejectionReason": {
+          "type": "string"
+        },
+        "MerchantStatement": {
+          "type": "string"
+        },
+        "Reports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "UploadedReportsUrls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "model.AcceptClaimRequest": {
+      "type": "object",
+      "properties": {
+        "FinalizedWith": {
+          "type": "string"
+        },
+        "InvoiceLink": {
+          "type": "string"
+        },
+        "AcceptionReason": {
+          "type": "string"
+        }
+      }
+    },
+    "model.PreApprovalConfirmRequest": {
+      "type": "object",
+      "properties": {
+        "preApprovalReason": {
+          "type": "string",
+          "enum": [
+            "ProductInvestigation"
+          ]
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    }
+  }
+}

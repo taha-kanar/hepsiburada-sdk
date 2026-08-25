@@ -1,0 +1,63 @@
+{
+  "name": "hepsiburada-sdk",
+  "version": "0.1.0",
+  "description": "Typed TypeScript SDK for the Hepsiburada Marketplace API — catalog, listings, orders, shipping, claims, finance and questions, generated from Hepsiburada's own OpenAPI documents.",
+  "keywords": [
+    "hepsiburada",
+    "marketplace",
+    "e-commerce",
+    "sdk",
+    "api-client",
+    "typescript"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
+    "./drift": {
+      "types": "./dist/drift.d.ts",
+      "import": "./dist/drift.js",
+      "require": "./dist/drift.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "openapi",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepare": "npm run build",
+    "generate": "node tools/generate.mjs",
+    "specs:fetch": "node tools/fetch-specs.mjs",
+    "observe": "npm run build && node tools/observe.mjs",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

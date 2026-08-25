@@ -1,0 +1,1043 @@
+[
+  {
+    "module": "catalog",
+    "operationId": "postProductsRejectPrematch",
+    "method": "POST",
+    "path": "/api/products/reject-prematch",
+    "summary": "Eşleşen Statü Red",
+    "publishedAs": "integratorRejectPreMatch"
+  },
+  {
+    "module": "catalog",
+    "operationId": "postProductsImport",
+    "method": "POST",
+    "path": "/api/products/import",
+    "summary": "Ürün Bilgisi Gönderme",
+    "publishedAs": "uploadProductViaFile",
+    "multipart": true
+  },
+  {
+    "module": "catalog",
+    "operationId": "postProductsFastlisting",
+    "method": "POST",
+    "path": "/api/products/fastlisting",
+    "summary": "Hızlı Ürün Yükleme",
+    "publishedAs": "uploadFastListingProduct"
+  },
+  {
+    "module": "catalog",
+    "operationId": "postProductsDeleteProcess",
+    "method": "POST",
+    "path": "/api/products/delete-process",
+    "summary": "Aksiyon Bekleyen Ürün Silme",
+    "publishedAs": "deleteByMerchantAndMerchantSkuList"
+  },
+  {
+    "module": "catalog",
+    "operationId": "postProductsCheckProductStatus",
+    "method": "POST",
+    "path": "/api/products/check-product-status",
+    "summary": "Ürüne Ait Statü Bilgisi Çekme",
+    "publishedAs": "checkProductStatus"
+  },
+  {
+    "module": "catalog",
+    "operationId": "postProductsApprovePrematch",
+    "method": "POST",
+    "path": "/api/products/approve-prematch",
+    "summary": "Eşleşen Statü Onay",
+    "publishedAs": "integratorApprovePreMatch"
+  },
+  {
+    "module": "catalog",
+    "operationId": "getCategoriesAttributes",
+    "method": "GET",
+    "path": "/api/categories/{categoryId}/attributes",
+    "summary": "Kategori Özelliklerini Alma",
+    "publishedAs": "getAllAttributesByCategory"
+  },
+  {
+    "module": "catalog",
+    "operationId": "getCategoriesAttributeValues",
+    "method": "GET",
+    "path": "/api/categories/{categoryId}/attribute/{attributeId}/values",
+    "summary": "Özellik Değerini Alma",
+    "publishedAs": "getAllAttributeValuesByCategoryIdAndAttributeId",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "catalog",
+    "operationId": "getProductsTrackingIdHistory",
+    "method": "GET",
+    "path": "/api/products/trackingId-history",
+    "summary": "TrackingId Geçmişini Sorgulama",
+    "publishedAs": "getTrackingList",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data"
+      }
+    }
+  },
+  {
+    "module": "catalog",
+    "operationId": "getProductsStatus",
+    "method": "GET",
+    "path": "/api/products/status/{trackingId}",
+    "summary": "Ürün Durumu Sorgulama",
+    "publishedAs": "getProductStatusByTraceId",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data",
+        "total": "totalElements",
+        "pageCount": "totalPages"
+      }
+    }
+  },
+  {
+    "module": "catalog",
+    "operationId": "getProductsProductsByMerchantAndStatus",
+    "method": "GET",
+    "path": "/api/products/products-by-merchant-and-status",
+    "summary": "Statü Bazlı Ürün Bilgisi Çekme",
+    "publishedAs": "getProductByMerchantIdAndStatus",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data",
+        "total": "totalElements",
+        "pageCount": "totalPages"
+      }
+    }
+  },
+  {
+    "module": "catalog",
+    "operationId": "getProductsDeleteProcess",
+    "method": "GET",
+    "path": "/api/products/delete-process/{trackingId}",
+    "summary": "Aksiyon Bekleyen Ürün Silme İşlem Kontrolü",
+    "publishedAs": "getDeleteProcess"
+  },
+  {
+    "module": "catalog",
+    "operationId": "getProductsAllProductsOfMerchant",
+    "method": "GET",
+    "path": "/api/products/all-products-of-merchant/{merchantId}",
+    "summary": "Mağaza Bazlı Ürün Bilgisi Listeleme",
+    "publishedAs": "getAllProductsByMerchantId",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data",
+        "total": "totalElements",
+        "pageCount": "totalPages"
+      }
+    }
+  },
+  {
+    "module": "catalog",
+    "operationId": "getCategoriesGetAllCategories",
+    "method": "GET",
+    "path": "/api/categories/get-all-categories",
+    "summary": "Kategori Bilgilerini Alma",
+    "publishedAs": "getAllCategoriesByParameters",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data",
+        "total": "totalElements",
+        "pageCount": "totalPages"
+      }
+    }
+  },
+  {
+    "module": "product-update",
+    "operationId": "postIntegratorImport",
+    "method": "POST",
+    "path": "/api/integrator/import",
+    "summary": "Ürün Güncelleme Servisi",
+    "publishedAs": "uploadTicketViaFile",
+    "multipart": true
+  },
+  {
+    "module": "product-update",
+    "operationId": "getIntegratorStatus",
+    "method": "GET",
+    "path": "/api/integrator/status/{trackingId}",
+    "summary": "Ürün Güncelleme Talep Durumu Sorgulama",
+    "publishedAs": "getTicketProductsStatusByTrackingId",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data",
+        "total": "totalElements",
+        "pageCount": "totalPages"
+      }
+    }
+  },
+  {
+    "module": "product-update",
+    "operationId": "getIntegratorMerchant",
+    "method": "GET",
+    "path": "/api/integrator/merchant/{merchantId}/hbSku/{hbSku}",
+    "summary": "Ürün Güncelleme Geçmişi Sorgulama",
+    "publishedAs": "getMerchantProcessesByMerchantIdAndSku"
+  },
+  {
+    "module": "listing",
+    "operationId": "getBuyboxOrders",
+    "method": "GET",
+    "path": "/buybox-orders/merchantid/{merchantId}",
+    "summary": "Buybox Sıralama Sorgulama",
+    "publishedAs": "Buybox Sıralama Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "getCommissions",
+    "method": "GET",
+    "path": "/commissions/merchantid/{merchantId}",
+    "summary": "Komisyon Bilgisi Sorgulama",
+    "publishedAs": "Komisyon Bilgisi Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListings",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}",
+    "summary": "Listing Bilgilerini Sorgulama",
+    "publishedAs": "Listing Bilgilerini Sorgulama",
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "listings",
+        "total": "totalCount"
+      }
+    }
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsInventoryUploads",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/inventory-uploads",
+    "summary": "Listing Envanter Güncelleme",
+    "publishedAs": "Listing Envanter Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListingsInventoryUploads",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}/inventory-uploads/id/{inventoryUploadId}",
+    "summary": "Listing Envanter Güncelleme Sorgulama",
+    "publishedAs": "Listing Envanter Güncelleme Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsStockUploads",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/stock-uploads",
+    "summary": "Listing Stok Güncelleme",
+    "publishedAs": "Listing Stok Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListingsStockUploads",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}/stock-uploads/id/{id}",
+    "summary": "Listing Stok Güncelleme Sorgulama",
+    "publishedAs": "Listing Stok Güncelleme Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsPriceUploads",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/price-uploads",
+    "summary": "Listing Fiyat Güncelleme",
+    "publishedAs": "Listing Fiyat Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListingsPriceUploads",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}/price-uploads/id/{id}",
+    "summary": "Listing Fiyat Güncelleme Sorgulama",
+    "publishedAs": "Listing Fiyat Güncelleme Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsShippingInfoUploads",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/shipping-info-uploads",
+    "summary": "Listing Teslimat Güncelleme",
+    "publishedAs": "Listing Teslimat Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListingsShippingInfoUploads",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}/shipping-info-uploads/id/{id}",
+    "summary": "Listing Teslimat Güncelleme Sorgulama",
+    "publishedAs": "Listing Teslimat Güncelleme Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsAdditionalInfoUploads",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/additional-info-uploads",
+    "summary": "Listing Ek Bilgiler Güncelleme",
+    "publishedAs": "Listing Ek Bilgiler Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "getListingsAdditionalInfoUploads",
+    "method": "GET",
+    "path": "/listings/merchantid/{merchantId}/additional-info-uploads/id/{id}",
+    "summary": "Listing Ek Bilgiler Güncelleme Sorgulama",
+    "publishedAs": "Listing Ek Bilgiler Güncelleme Sorgulama"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsActivate",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/sku/{sku}/activate",
+    "summary": "Listing Activate",
+    "publishedAs": "Listing Activate"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsDeactivate",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/sku/{sku}/deactivate",
+    "summary": "Listing Deactivate",
+    "publishedAs": "Listing Deactivate"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListings",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/sku/{sku}/merchantsku/{merchantSku}",
+    "summary": "Listing Tekil Fiyat/Stok Güncelleme",
+    "publishedAs": "Listing Tekil Fiyat/Stok Güncelleme"
+  },
+  {
+    "module": "listing",
+    "operationId": "deleteListings",
+    "method": "DELETE",
+    "path": "/listings/merchantid/{merchantId}/sku/{sku}/merchantsku/{merchantSku}",
+    "summary": "Listing Silme",
+    "publishedAs": "Listing Silme"
+  },
+  {
+    "module": "listing",
+    "operationId": "postListingsBulkUnlock",
+    "method": "POST",
+    "path": "/listings/merchantid/{merchantId}/bulk-unlock",
+    "summary": "Toplu Kilit Kaldırma",
+    "publishedAs": "Toplu Kilit Kaldırma"
+  },
+  {
+    "module": "promotion",
+    "operationId": "postSelfCampaignTlDiscount",
+    "method": "POST",
+    "path": "/self-campaign/{merchantId}/tl-discount",
+    "summary": "Sepete TL İndirimi Oluşturma",
+    "publishedAs": "Sepette TL İndirimi Oluşturma"
+  },
+  {
+    "module": "promotion",
+    "operationId": "postSelfCampaignPercentDiscount",
+    "method": "POST",
+    "path": "/self-campaign/{merchantId}/percent-discount",
+    "summary": "Sepete Yüzde İndirimi Oluşturma",
+    "publishedAs": "Sepete % İndirimi Oluşturma"
+  },
+  {
+    "module": "promotion",
+    "operationId": "postSelfCampaignXyDiscount",
+    "method": "POST",
+    "path": "/self-campaign/{merchantId}/xy-discount",
+    "summary": "Sepete X Al Y Öde İndirimi Oluşturma",
+    "publishedAs": "Sepete X Al Y Öde İndirimi Oluşturma"
+  },
+  {
+    "module": "promotion",
+    "operationId": "getSelfCampaignDiscounts",
+    "method": "GET",
+    "path": "/self-campaign/{merchantId}/discounts",
+    "summary": "Sepet İndirimleri Sorgulama",
+    "publishedAs": "Sepet İndirimleri Sorgulama",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "pagesize",
+        "firstPage": 0
+      },
+      "response": {
+        "items": "data"
+      }
+    }
+  },
+  {
+    "module": "promotion",
+    "operationId": "getSelfCampaignDiscount",
+    "method": "GET",
+    "path": "/self-campaign/{merchantId}/discount/{campaignId}",
+    "summary": "Sepet İndirimi Detay Sorgulama",
+    "publishedAs": "Sepet İndirimi Detay Sorgulama"
+  },
+  {
+    "module": "promotion",
+    "operationId": "postSelfCampaignCancelDiscount",
+    "method": "POST",
+    "path": "/self-campaign/{merchantId}/cancel-discount",
+    "summary": "Sepet İndirimi İptali",
+    "publishedAs": "Sepet İndirimi İptali"
+  },
+  {
+    "module": "promotion",
+    "operationId": "getSelfCampaignLimits",
+    "method": "GET",
+    "path": "/self-campaign/{merchantId}/limits",
+    "summary": "Sepet İndirimi Limitleri Sorgulama",
+    "publishedAs": "Sepet İndirimi Limitleri Sorgulama"
+  },
+  {
+    "module": "promotion",
+    "operationId": "getSelfCampaignBudgets",
+    "method": "GET",
+    "path": "/self-campaign/{merchantId}/budgets",
+    "summary": "Sepet İndirimi Bütçeleri Sorgulama",
+    "publishedAs": "Sepet İndirimi Bütçeleri Sorgulama"
+  },
+  {
+    "module": "promotion",
+    "operationId": "getCategories",
+    "method": "GET",
+    "path": "/categories/{merchantId}",
+    "summary": "Satıcı Ürün Kategorileri Sorgulama",
+    "publishedAs": "Satıcı Ürün Kategorileri Sorgulama"
+  },
+  {
+    "module": "order",
+    "operationId": "getDeliveryChangeablecargocompanies",
+    "method": "GET",
+    "path": "/delivery/changeablecargocompanies/merchantid/{merchantId}/orderlineid/{orderLineId}",
+    "summary": "Paketlenecek Siparisin Hangi Kargo Firmasi Ile Degistirilebilecegini Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postLineitemsCancelbymerchant",
+    "method": "POST",
+    "path": "/lineitems/merchantid/{merchantId}/id/{lineId}/cancelbymerchant",
+    "summary": "Iptal Bilgisi Gonderme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putLineitemsCargocompany",
+    "method": "PUT",
+    "path": "/lineitems/merchantid/{merchantId}/orderlineid/{id}/cargocompany",
+    "summary": "Paketlenecek Siparisin Kargo Firmasini Degistirme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putLineitemsLaborcost",
+    "method": "PUT",
+    "path": "/lineitems/merchantid/{merchantId}/orderlineid/{id}/laborcost",
+    "summary": "Siparis Kalemi Iscilik Maliyeti Guncelleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getLineitemsPackageablewith",
+    "method": "GET",
+    "path": "/lineitems/merchantid/{merchantId}/packageablewith/lineitemid/{lineItemId}",
+    "summary": "Ayni Pakete Konulabilecek Kalemleri Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getOrders",
+    "method": "GET",
+    "path": "/orders/merchantid/{merchantId}",
+    "summary": "Odemesi Tamamlanmis Siparisleri Listeleme",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    },
+    "supportsDateFilter": true
+  },
+  {
+    "module": "order",
+    "operationId": "getOrdersCancelled",
+    "method": "GET",
+    "path": "/orders/merchantid/{merchantId}/cancelled",
+    "summary": "Iptal Siparis Bilgileri Listeleme",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    },
+    "rejectsDateFilter": true
+  },
+  {
+    "module": "order",
+    "operationId": "getOrdersByOrdernumber",
+    "method": "GET",
+    "path": "/orders/merchantid/{merchantId}/ordernumber/{orderNumber}",
+    "summary": "Siparise Ait Detay Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getOrdersPaymentawaiting",
+    "method": "GET",
+    "path": "/orders/merchantid/{merchantId}/paymentawaiting",
+    "summary": "Odemesi Beklenen Siparisleri Listeleme",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    }
+  },
+  {
+    "module": "order",
+    "operationId": "getPackages",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}",
+    "summary": "Saticiya Ait Paket Bilgilerini Listeleme",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "Offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "order",
+    "operationId": "postPackages",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}",
+    "summary": "Kalem veya Kalemleri Paketleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesDelivered",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/delivered",
+    "summary": "Teslim Edilen Siparislerin Listelenmesi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    },
+    "rejectsDateFilter": true
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesMissingInvoice",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/missing-invoice",
+    "summary": "Faturası Yüklenmemiş Siparişlerin Listelenmesi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    }
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesChangablecargocompanies",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packageNumber}/changablecargocompanies",
+    "summary": "Paketli Siparisin Hangi Kargo Firmasi Ile Degistirilebilecegini Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putPackagesChangecargocompany",
+    "method": "PUT",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packageNumber}/changecargocompany",
+    "summary": "Paketli Siparisin Kargo Firmasini Degistirme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putPackagesInvoice",
+    "method": "PUT",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packageNumber}/invoice",
+    "summary": "Fatura Linki Gonderme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesByPackagenumber",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}",
+    "summary": "Paket Icin Kargo Bilgilerini Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postPackagesDeliver",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/deliver",
+    "summary": "Teslimat Statusu Iletme (Teslim Edildi)",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postPackagesIntransit",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/intransit",
+    "summary": "Teslimat Statusu Iletme(Kargoda)",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesLabels",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/labels",
+    "summary": "Ortak Barkod Olusturma",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putPackagesParcelInfo",
+    "method": "PUT",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/parcel-info",
+    "summary": "Gonderi Koli ve Desi Bilgisi Guncelleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postPackagesSplit",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/split",
+    "summary": "Paket Bolme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postPackagesUndeliver",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/undeliver",
+    "summary": "Teslimat Statusu Iletme(Teslim Edilemedi)",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "postPackagesUnpack",
+    "method": "POST",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/unpack",
+    "summary": "Paket Bozma",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "putPackagesWarehouse",
+    "method": "PUT",
+    "path": "/packages/merchantid/{merchantId}/packagenumber/{packagenumber}/warehouse",
+    "summary": "Paket Bilgilerinde Depo Bilgisi Güncelleme",
+    "publishedAs": null
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesShipped",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/shipped",
+    "summary": "Kargoya Verilen Siparislerin Listelenmesi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    },
+    "rejectsDateFilter": true
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesStatusUnpacked",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/status/unpacked",
+    "summary": "Bozulan (Unpack) Paket Bilgilerini Listeleme",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "Offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "order",
+    "operationId": "getPackagesUndelivered",
+    "method": "GET",
+    "path": "/packages/merchantid/{merchantId}/undelivered",
+    "summary": "Teslim Edilemedi Siparislerin Listelenmesi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount",
+        "pageCount": "pageCount"
+      }
+    },
+    "rejectsDateFilter": true
+  },
+  {
+    "module": "test-order",
+    "operationId": "postOrders",
+    "method": "POST",
+    "path": "/orders/merchantId/{merchantId}",
+    "summary": "Test siparisi olusturma",
+    "publishedAs": null
+  },
+  {
+    "module": "shipping",
+    "operationId": "getCargoFirms",
+    "method": "GET",
+    "path": "/cargoFirms/{merchantId}",
+    "summary": "Kargo Firmaları Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "shipping",
+    "operationId": "postProfileCreateByMerchantId",
+    "method": "POST",
+    "path": "/profile/createByMerchantId",
+    "summary": "Profil Oluşturma",
+    "publishedAs": null
+  },
+  {
+    "module": "shipping",
+    "operationId": "putProfileUpdateByMerchantId",
+    "method": "PUT",
+    "path": "/profile/updateByMerchantId",
+    "summary": "Profil Güncelleme",
+    "publishedAs": null
+  },
+  {
+    "module": "shipping",
+    "operationId": "getProfiles",
+    "method": "GET",
+    "path": "/profiles/{merchantId}",
+    "summary": "Profil Listeleme",
+    "publishedAs": null
+  },
+  {
+    "module": "finance",
+    "operationId": "getTransactions",
+    "method": "GET",
+    "path": "/transactions/merchantid/{merchantId}",
+    "summary": "Kayıt Bazlı Muhasebe Servisi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "Offset",
+        "limitParam": "Limit"
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "finance",
+    "operationId": "getOrders",
+    "method": "GET",
+    "path": "/orders/merchantid/{merchantId}",
+    "summary": "Performans Servisi",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "Offset",
+        "limitParam": "Limit"
+      },
+      "response": {
+        "items": "items",
+        "total": "totalCount"
+      }
+    }
+  },
+  {
+    "module": "question",
+    "operationId": "getIssues",
+    "method": "GET",
+    "path": "/api/v1.0/issues",
+    "summary": "Soru Listesi",
+    "publishedAs": "Soru Listesi",
+    "pagination": {
+      "request": {
+        "style": "page",
+        "pageParam": "page",
+        "sizeParam": "size",
+        "firstPage": 1
+      },
+      "response": {
+        "items": "data"
+      }
+    }
+  },
+  {
+    "module": "question",
+    "operationId": "postIssues",
+    "method": "POST",
+    "path": "/api/v1.0/issues",
+    "summary": "Soru Oluşturma",
+    "publishedAs": "Soru Oluşturma"
+  },
+  {
+    "module": "question",
+    "operationId": "getIssuesByNumber",
+    "method": "GET",
+    "path": "/api/v1.0/issues/{number}",
+    "summary": "Soru Detayının Çekilmesi",
+    "publishedAs": "Soru Detayının Çekilmesi"
+  },
+  {
+    "module": "question",
+    "operationId": "postIssuesAnswer",
+    "method": "POST",
+    "path": "/api/v1.0/issues/{number}/answer",
+    "summary": "Soru Cevaplama",
+    "publishedAs": "Soru Cevaplama",
+    "multipart": true
+  },
+  {
+    "module": "question",
+    "operationId": "postIssuesReject",
+    "method": "POST",
+    "path": "/api/v1.0/issues/{number}/reject",
+    "summary": "Sorun Bildirme",
+    "publishedAs": "Sorun Bildirme"
+  },
+  {
+    "module": "question",
+    "operationId": "getIssuesCount",
+    "method": "GET",
+    "path": "/api/v1.0/issues/count",
+    "summary": "Statü Bazlı Soru Sayısı",
+    "publishedAs": "Statü Bazlı Soru Sayısı"
+  },
+  {
+    "module": "claim-create",
+    "operationId": "postClaimsMerchantCreate",
+    "method": "POST",
+    "path": "/claims/merchant/{merchantid}/create",
+    "summary": "Yeni bir talep oluşturulmasını sağlar",
+    "publishedAs": "createClaimUsingPOST"
+  },
+  {
+    "module": "claim-list",
+    "operationId": "getClaims",
+    "method": "GET",
+    "path": "/claims/merchantId/{merchantId}",
+    "summary": "Merchant için bütün talepleri getirir",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "claim-list",
+    "operationId": "getClaimsByStatus",
+    "method": "GET",
+    "path": "/claims/merchantId/{merchantId}/status/{status}",
+    "summary": "Merchant için belirtilen statüde ki talepleri getirir",
+    "publishedAs": null,
+    "pagination": {
+      "request": {
+        "style": "offset",
+        "offsetParam": "offset",
+        "limitParam": "limit"
+      },
+      "response": {
+        "items": "items"
+      }
+    }
+  },
+  {
+    "module": "claim-list",
+    "operationId": "postClaimsAccept",
+    "method": "POST",
+    "path": "/claims/number/{claimNumber}/accept",
+    "summary": "İletilen Talebin Onaylanmasını Sağlar.",
+    "publishedAs": null
+  },
+  {
+    "module": "claim-list",
+    "operationId": "postClaimsPreapprovalconfirm",
+    "method": "POST",
+    "path": "/claims/number/{claimNumber}/preapprovalconfirm",
+    "summary": "PreApproval talebi onayla",
+    "publishedAs": null
+  },
+  {
+    "module": "claim-list",
+    "operationId": "postClaimsReject",
+    "method": "POST",
+    "path": "/claims/number/{claimNumber}/reject",
+    "summary": "İletilen Talebin Reddedilmesini Sağlar.",
+    "publishedAs": null
+  },
+  {
+    "module": "supplier",
+    "operationId": "postSuppliersListingUpdateRequests",
+    "method": "POST",
+    "path": "/suppliers/{merchantId}/listingUpdateRequests",
+    "summary": "Teklif Oluşturma",
+    "publishedAs": "Teklif Oluşturma"
+  },
+  {
+    "module": "supplier",
+    "operationId": "postSuppliersListingUpdateRequestsSearch",
+    "method": "POST",
+    "path": "/suppliers/{merchantId}/listingUpdateRequests/search",
+    "summary": "Teklifleri Listeleme",
+    "publishedAs": "Teklifleri Listeleme"
+  },
+  {
+    "module": "supplier",
+    "operationId": "getSuppliersListingUpdateRequests",
+    "method": "GET",
+    "path": "/suppliers/{merchantId}/listingUpdateRequests/{requestId}",
+    "summary": "Teklif Detayı Listeleme",
+    "publishedAs": "Teklif Detayı Listeleme"
+  },
+  {
+    "module": "supplier",
+    "operationId": "postSuppliersOpenPurchaseOrdersSearch",
+    "method": "POST",
+    "path": "/suppliers/{merchantId}/openPurchaseOrders/search",
+    "summary": "Açık Siparişleri Listeleme",
+    "publishedAs": "Açık Siparişleri Listeleme"
+  },
+  {
+    "module": "supplier",
+    "operationId": "postSuppliersSupplierlistingsSearch",
+    "method": "POST",
+    "path": "/suppliers/{merchantId}/supplierlistings/search",
+    "summary": "Envanter Bilgilerini Listeleme",
+    "publishedAs": "Envanter Bilgilerini Listeleme"
+  }
+]

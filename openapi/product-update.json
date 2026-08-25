@@ -1,0 +1,554 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "HEPSIBURADA - ÜRÜN GÜNCELLEME ENTEGRASYONU",
+    "description": "Ürün Güncelleme Entegrasyonu",
+    "contact": {
+      "name": "Platon Team",
+      "email": "platonteam@hepsiburada.com"
+    },
+    "license": {
+      "name": "Hepsiburada"
+    },
+    "version": "v1.1.3"
+  },
+  "servers": [
+    {
+      "url": "https://mpop-sit.hepsiburada.com/ticket-api",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Ürün Güncelleme",
+      "description": "Ürün Güncelleme İşlemleri"
+    }
+  ],
+  "paths": {
+    "/api/integrator/import": {
+      "post": {
+        "tags": [
+          "Ürün Güncelleme"
+        ],
+        "summary": "Ürün Güncelleme Servisi",
+        "description": "Ürün güncelleme servisi ile Hepsiburada sisteminde kayıtlı Merchantların listelediği ürünler için entegratör firmalar tarafından güncelleme talebi oluşturulabilecektir. Ürün bilgilerini bir json dosyasına yazdıktan sonra, o dosyayı bu istek içerisinde göndermeniz gerekmektedir. Hepsiburada tarafından zenginleştirilmiş ve düzeltilmiş ürün bilgilerinin ezilmemesi için sadece güncellenmek istenen alanların iletilmesi önemlidir. <br/> Json dosyası örneği: integrator-ticket-upload.json\n```\n  {\n    \"merchantId\": \"9b3e3fa8-cb96-4056-a83c-3192a4299f59\",\n    \"items\": [\n       {\n         \"hbSku\": \"SAMPLE-SKU-INT-0\",\n         \"productName\": \"Hizlimarket1\",\n         \"productDescription\": \"Duis enim duis magna ex veniam elit id Lorem cillum minim nisi id aliquip. Laboris magna id est et deserunt adipisicing tempor eu ea officia ipsum deserunt. Irure occaecat sit aliquip elit ipsum sint dolore quis est amet aute pariatur cupidatat fugiat. Cillum pariatur pariatur occaecat sint. Aliqua qui in exercitation nulla aliquip id ipsum aliquip ad ut excepteur culpa consequat aliquip. Nisi ut ex tempor enim adipisicing anim irure pariatur.\\r\\n\",\n         \"image1\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image2\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image3\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image4\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image5\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image6\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image7\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image8\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image9\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image10\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"video\": \"https://images.hepsiburada.net/assets/videos/ProductVideos/iPhone_14_Pro_PDP_Video_16x9__TR.mp4\",\n         \"attributes\": {\n             \"renk_variant_property\": \"Siyah\",\n             \"numara_variant_property\": \"44\",\n             \"malzeme\": \"Rugan\"\n          }\n       },\n       {\n         \"hbSku\": \"SAMPLE-SKU-INT-1\",\n         \"productName\": \"Hizlimarket2\",\n         \"productDescription\": \"Duis enim duis magna ex veniam elit id Lorem cillum minim nisi id aliquip. Laboris magna id est et deserunt adipisicing tempor eu ea officia ipsum deserunt. Irure occaecat sit aliquip elit ipsum sint dolore quis est amet aute pariatur cupidatat fugiat. Cillum pariatur pariatur occaecat sint. Aliqua qui in exercitation nulla aliquip id ipsum aliquip ad ut excepteur culpa consequat aliquip. Nisi ut ex tempor enim adipisicing anim irure pariatur.\\r\\n\",\n         \"image1\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image2\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image3\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image4\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image5\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image6\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image7\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image8\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image9\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"image10\": \"https://productimages.hepsiburada.net/s/27/552/10194862145586.jpg\",\n         \"video\": \"https://images.hepsiburada.net/assets/videos/ProductVideos/iPhone_14_Pro_PDP_Video_16x9__TR.mp4\",\n         \"attributes\": {\n             \"renk_variant_property\": \"Siyah\",\n             \"numara_variant_property\": \"44\",\n             \"malzeme\": \"\", // Değeri silmek için boş gönderiyoruz\n             \"desen\": \"Desenli\" // Varolan bir özellik olduğu için bunun talebi oluşmayacak\n          }\n       }\n    ]\n  }\n```",
+        "operationId": "uploadTicketViaFile",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "description": "İstekte bulunan entegratör firmayı tanımlayan User-Agent bilgisi.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/integrator/status/{trackingId}": {
+      "get": {
+        "tags": [
+          "Ürün Güncelleme"
+        ],
+        "summary": "Ürün Güncelleme Talep Durumu Sorgulama",
+        "description": "Tracking Id verilerek ürün güncelleme talebinin durumunu sorgular.",
+        "operationId": "getTicketProductsStatusByTrackingId",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "description": "İstekte bulunan entegratör firmayı tanımlayan User-Agent bilgisi.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trackingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Datasını görmek istediğiniz sayfa numarası",
+            "schema": {
+              "title": "Sayfa numarası",
+              "type": "integer",
+              "description": "Datasını görmek istediğiniz sayfa numarası",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Her sayfada görmek istediğiniz data sayısı",
+            "schema": {
+              "title": "Sayfa boyutu",
+              "type": "integer",
+              "description": "Her sayfada görmek istediğiniz data sayısı",
+              "default": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseIntegratorImportStatusDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/integrator/merchant/{merchantId}/hbSku/{hbSku}": {
+      "get": {
+        "tags": [
+          "Ürün Güncelleme"
+        ],
+        "summary": "Ürün Güncelleme Geçmişi Sorgulama",
+        "description": "Oluşturulan ürün güncelleme talepleri için trackingId ve createdAt bilgilerinin alınması için kullanılır. Servise parametre olarak MerchantId ve Sku girilmesi zorunludur.",
+        "operationId": "getMerchantProcessesByMerchantIdAndSku",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "description": "İstekte bulunan entegratör firmayı tanımlayan User-Agent bilgisi.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "merchantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hbSku",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldErrorDTO"
+            }
+          }
+        }
+      },
+      "FieldErrorDTO": {
+        "type": "object",
+        "properties": {
+          "objectName": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "IntegratorImportStatusDto": {
+        "type": "object",
+        "properties": {
+          "merchantId": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegratorImportStatusItemDto"
+            }
+          }
+        }
+      },
+      "IntegratorImportStatusItemDto": {
+        "type": "object",
+        "properties": {
+          "hbSku": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "productStatus": {
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "UNCOMPLETED"
+            ]
+          },
+          "updateResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegratorUpdateResultsDto"
+            }
+          }
+        }
+      },
+      "IntegratorUpdateResultAttributeDto": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "attributeType": {
+            "type": "string",
+            "enum": [
+              "MANDATORY",
+              "OPTIONAL",
+              "VARIANT_TYPE"
+            ]
+          },
+          "fieldResult": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "IN_PROGRESS",
+              "PARTIAL_APPROVED"
+            ]
+          }
+        }
+      },
+      "IntegratorUpdateResultsDto": {
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "type": "string",
+            "enum": [
+              "NAME",
+              "DESCRIPTION",
+              "KDV",
+              "BARCODE",
+              "IS_CUSTOMIZABLE",
+              "BRAND",
+              "DESI",
+              "WARRANTY_PERIOD",
+              "MEDIA",
+              "ATTRIBUTE"
+            ]
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "fieldResult": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED",
+              "IN_PROGRESS",
+              "PARTIAL_APPROVED"
+            ]
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegratorUpdateResultAttributeDto"
+            }
+          }
+        }
+      },
+      "PageResponseIntegratorImportStatusDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntegratorImportStatusDto"
+            }
+          }
+        }
+      },
+      "ResponseObject": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}
